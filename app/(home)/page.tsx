@@ -12,6 +12,7 @@ export default function HomePage() {
       <HeroSection />
       <CategorySection />
       <FeaturedProducts />
+      <div className="h-96 bg-primary/60"></div>
       <TestimonialsSection />
       {/* <SwipeCards /> */}
     </main>

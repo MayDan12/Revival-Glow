@@ -37,7 +37,7 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center bg-background overflow-hidden">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={currentImageIndex}
           initial={{ opacity: 0 }}

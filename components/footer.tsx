@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Facebook, Instagram, Mail, Twitter } from "lucide-react";
 
 export function Footer() {
   const containerVariants = {
@@ -25,7 +26,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="bg-[#C4592D] text-background py-16">
+    <footer className="bg-background/95 border-t border-gray-300 text-background py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           variants={containerVariants}
@@ -35,22 +36,30 @@ export function Footer() {
           className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12"
         >
           <motion.div variants={itemVariants} className="md:col-span-2">
-            <div className="text-2xl font-serif mb-4">{"Revival Glow"}</div>
-            <p className="text-background/80 leading-relaxed max-w-md">
+            <div className="text-2xl text-gray-800 font-serif mb-4">
+              {"Revival Glow"}
+            </div>
+            <p className="text-gray-800  leading-relaxed max-w-md">
               {
                 "Handcrafted hair care inspired by African and Ayurvedic traditions. We believe every strand deserves deep restoration and radiant beauty from root to tip."
               }
             </p>
+            <motion.div className="flex gap-4 mt-4">
+              <Instagram className="" />
+              <Facebook />
+              <Twitter />
+              <Mail />
+            </motion.div>
           </motion.div>
 
           {/* Quick Links */}
           <motion.div variants={itemVariants}>
-            <h3 className="font-medium mb-4">{"Quick Links"}</h3>
+            <h3 className="font-medium text-gray-800 mb-4">{"Quick Links"}</h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/products"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"Products"}
                 </Link>
@@ -58,7 +67,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"About Us"}
                 </Link>
@@ -66,9 +75,17 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"Contact"}
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/tracking"
+                  className="text-gray-800 hover:text-background transition-colors"
+                >
+                  {"Track Orders"}
                 </Link>
               </li>
             </ul>
@@ -76,12 +93,14 @@ export function Footer() {
 
           {/* Customer Care */}
           <motion.div variants={itemVariants}>
-            <h3 className="font-medium mb-4">{"Customer Care"}</h3>
+            <h3 className="font-medium text-gray-800 mb-4">
+              {"Customer Care"}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <Link
                   href="/shipping"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"Shipping Info"}
                 </Link>
@@ -89,7 +108,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/returns"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"Returns"}
                 </Link>
@@ -97,7 +116,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/faq"
-                  className="text-background/80 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-background transition-colors"
                 >
                   {"FAQ"}
                 </Link>
@@ -111,9 +130,13 @@ export function Footer() {
           whileInView={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
           viewport={{ once: true }}
-          className="border-t border-background/20 pt-8 text-center"
+          className="border-t border-gray-300 pt-8 text-center"
         >
-          <p className="text-background/60 text-sm">
+          <p className="text-gray-800 text-sm">
+            {"For inquiries, please contact:"}
+          </p>
+          <p className="text-gray-800 text-sm">{"info@revivalglowcare.com"}</p>
+          <p className="text-gray-800 text-sm">
             {"© 2025 Revival Glow. All rights reserved."}
           </p>
         </motion.div>

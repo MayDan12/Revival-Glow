@@ -30,7 +30,7 @@ export function FeaturedProducts() {
     },
   };
   return (
-    <section className="py-20 bg-secondary/30">
+    <section className="py-10 bg-background/95">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -39,10 +39,10 @@ export function FeaturedProducts() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-4xl font-serif text-foreground mb-4 text-balance">
+          <h2 className="text-3xl md:text-4xl font-serif text-gray-700 mb-4 text-balance">
             {"Featured Products"}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto text-balance">
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto text-balance">
             {
               "Discover our most loved skincare essentials, carefully formulated with natural ingredients for radiant, healthy skin."
             }
@@ -103,7 +103,7 @@ function FeaturedProduct({ product }: { product: Product }) {
   return (
     <Card
       key={product.id}
-      className="group py-0 cursor-pointer border-0 shadow-sm hover:shadow-md transition-shadow"
+      className="group py-0 cursor-pointer bg-white border-0 shadow-sm hover:shadow-md transition-shadow"
     >
       <CardContent className="p-0 ">
         <div className="aspect-square overflow-hidden rounded-t-lg">

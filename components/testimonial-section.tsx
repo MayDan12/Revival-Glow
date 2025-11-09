@@ -64,7 +64,7 @@ const itemVariants = {
 
 export function TestimonialsSection() {
   return (
-    <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-background to-background/50">
+    <section className="py-10 px-4 md:px-8 bg-gradient-to-b from-background to-background/50">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}

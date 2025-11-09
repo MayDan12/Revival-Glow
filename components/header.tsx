@@ -206,6 +206,13 @@ export function Header() {
 
             <div className="flex flex-col gap-3 mt-4">
               <Link
+                href="/"
+                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                onClick={closeMenu}
+              >
+                Home
+              </Link>
+              <Link
                 href="/products"
                 className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={closeMenu}
