@@ -284,7 +284,6 @@ export function Header() {
               <div className="">
                 <CartDrawer />
               </div>
-
               {/* mobile menu toggle */}
               <Button
                 variant="ghost"

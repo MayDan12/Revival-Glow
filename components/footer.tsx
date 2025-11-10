@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Facebook, Instagram, Mail, Twitter } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   const containerVariants = {
@@ -45,10 +46,14 @@ export function Footer() {
               }
             </p>
             <motion.div className="flex gap-4 mt-4">
-              <Instagram className="" />
-              <Facebook />
-              <Twitter />
-              <Mail />
+              <Instagram className="text-gray-800 hover:text-[#E4405F] transition-colors" />{" "}
+              {/* Instagram pink */}
+              <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />{" "}
+              {/* Facebook blue */}
+              <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />{" "}
+              {/* Twitter blue */}
+              <Mail className="text-gray-800 hover:text-[#EA4335] transition-colors" />{" "}
+              {/* Gmail red */}
             </motion.div>
           </motion.div>
 
@@ -59,7 +64,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/products"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"Products"}
                 </Link>
@@ -67,7 +72,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"About Us"}
                 </Link>
@@ -75,7 +80,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"Contact"}
                 </Link>
@@ -83,7 +88,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/tracking"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"Track Orders"}
                 </Link>
@@ -100,7 +105,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/shipping"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"Shipping Info"}
                 </Link>
@@ -108,7 +113,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/returns"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"Returns"}
                 </Link>
@@ -116,7 +121,7 @@ export function Footer() {
               <li>
                 <Link
                   href="/faq"
-                  className="text-gray-800 hover:text-background transition-colors"
+                  className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"FAQ"}
                 </Link>
@@ -140,6 +145,37 @@ export function Footer() {
             {"© 2025 Revival Glow. All rights reserved."}
           </p>
         </motion.div>
+        {/* Payment Options */}
+        <div className="mt-6 flex justify-center gap-4">
+          <Image
+            src="/payments/visa.png"
+            alt="Visa"
+            className="h-8 object-contain"
+            width={48}
+            height={24}
+          />
+          <Image
+            src="/payments/mastercard.png"
+            alt="Mastercard"
+            className="h-8 object-contain"
+            width={48}
+            height={24}
+          />
+          <Image
+            src="/payments/amex.png"
+            alt="American Express"
+            className="h-8 object-contain"
+            width={48}
+            height={24}
+          />
+          {/* <Image
+            src="/payments/paypal.png"
+            alt="PayPal"
+            className="h-8 object-contain"
+            width={48}
+            height={24}
+          /> */}
+        </div>
       </div>
     </footer>
   );
