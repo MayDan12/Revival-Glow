@@ -262,6 +262,18 @@ export function Header() {
 
             {/* Desktop nav */}
             <nav className="hidden md:flex items-center space-x-8">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 2 * 0.06 }}
+              >
+                <Link
+                  href={"/"}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Home
+                </Link>
+              </motion.div>
               {["Products", "About", "Contact"].map((item, index) => (
                 <motion.div
                   key={item}

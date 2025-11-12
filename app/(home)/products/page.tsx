@@ -67,7 +67,7 @@ export default function ProductsPage() {
 
   return (
     <main className="py-8">
-      <div className="container mx-auto px-4  lg:px-8">
+      <div className="container mx-auto px-4 ">
         {/* Page Header */}
         <div className="mb-4 text-center">
           <h1 className="text-3xl md:text-5xl font-serif text-foreground  text-balance">
