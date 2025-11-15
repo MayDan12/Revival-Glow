@@ -15,6 +15,7 @@ export default function HomePage() {
       <div className="h-96 bg-primary/60"></div>
       <TestimonialsSection />
       {/* <SwipeCards /> */}
+      {/* What a life must be */}
     </main>
   );
 }
