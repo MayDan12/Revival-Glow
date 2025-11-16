@@ -57,7 +57,7 @@ const itemVariants = {
 
 export function CategorySection() {
   return (
-    <section className="py-20 px-4 md:px-8 bg-background">
+    <section className="py-20 px-4 md:px-8 bg-background border-b border-primary/60">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -66,7 +66,7 @@ export function CategorySection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl md:text-4xl font-serif  text-foreground mb-4">
             Shop by Category
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

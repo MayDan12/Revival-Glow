@@ -7,11 +7,15 @@ import { ProductDetails } from "@/components/product-details";
 import { useSingleProduct } from "@/hooks/useSingleProduct";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+// import RelatedProducts from "@/components/related-products";
+import { useRelatedProducts } from "@/hooks/useRelatedProducts";
+import { RelatedProducts } from "@/components/related-products";
 
 export default function ProductPage() {
   const params = useParams();
   const productId = params.id as string;
   const { product, loading, error, refetch } = useSingleProduct(productId);
+  const { relatedProducts } = useRelatedProducts(productId);
 
   // Loading state
   if (loading) {
@@ -106,7 +110,9 @@ export default function ProductPage() {
               </Link>
             </li>
             <li>/</li>
-            <li className="text-foreground font-medium">{product.name}</li>
+            <li className="text-foreground font-medium text-sm">
+              {product.name}
+            </li>
           </ol>
         </nav>
 
@@ -123,6 +129,10 @@ export default function ProductPage() {
           <div>
             <ProductDetails product={product} />
           </div>
+
+          {relatedProducts.length > 0 && (
+            <RelatedProducts products={relatedProducts} />
+          )}
         </div>
       </div>
     </main>

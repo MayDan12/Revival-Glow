@@ -54,7 +54,7 @@ export function FeaturedProducts() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-8 mb-12"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8 mb-12"
         >
           {products.map((product) => (
             <motion.div key={product.id} variants={itemVariants}>
@@ -113,13 +113,13 @@ function FeaturedProduct({ product }: { product: Product }) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         </div>
-        <div className="p-4 md:p-6">
+        <div className="p-4">
           <Link href={`/products/${product.id}`} key={product.id}>
-            <h3 className="text-xl font-medium text-foreground mb-2">
+            <h3 className="text-lg font-medium text-foreground mb-1">
               {product.name}
             </h3>
           </Link>
-          <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
+          <p className="text-muted-foreground text-sm mb-2 line-clamp-3">
             {product.description}
           </p>
           <div className="flex items-center justify-between">

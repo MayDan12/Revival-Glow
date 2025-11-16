@@ -73,7 +73,7 @@ export function TestimonialsSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="text-2xl md:text-4xl font-serif font-bold text-foreground mb-4">
             Loved by Our Community
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">

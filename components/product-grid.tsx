@@ -538,14 +538,14 @@ export function ProductGrid({
                 </div>
               </div>
 
-              <div className="p-6">
+              <div className="p-3">
                 <Link href={`/products/${product.id}`}>
-                  <h3 className="md:text-lg font-medium text-foreground mb-2 group-hover:text-primary transition-colors">
+                  <h3 className="md:text-lg font-medium text-foreground mb-1 group-hover:text-primary transition-colors">
                     {product.name}
                   </h3>
                 </Link>
 
-                <p className="text-muted-foreground text-sm mb-3 leading-relaxed line-clamp-2">
+                <p className="text-muted-foreground text-sm mb-2 leading-relaxed line-clamp-2">
                   {product.description}
                 </p>
 

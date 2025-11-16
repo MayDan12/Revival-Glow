@@ -8,19 +8,19 @@ import Image from "next/image";
 
 const heroImages = [
   {
-    src: "/Image_fx1.jpg",
+    src: "/Image_fx8.jpg",
     alt: "Natural hair care oils and ingredients",
   },
   {
-    src: "/Image_fx2.jpg",
+    src: "/Image_fx5.jpg",
     alt: "Healthy, radiant hair transformation",
   },
   {
-    src: "/Image_fx3.jpg",
+    src: "/Image_fx6.jpg",
     alt: "Natural ingredients and botanical blend",
   },
   {
-    src: "/Image_fx4.jpg",
+    src: "/Image_fx9.jpg",
     alt: "Natural ingredients and botanical blend",
   },
 ];

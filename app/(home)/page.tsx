@@ -1,10 +1,12 @@
-import { Header } from "@/components/header";
 import { HeroSection } from "@/components/hero-section";
 import { FeaturedProducts } from "@/components/featured-products";
-import { Footer } from "@/components/footer";
-import SwipeCards from "@/components/home/testimonial";
 import { TestimonialsSection } from "@/components/testimonial-section";
 import { CategorySection } from "@/components/category-section";
+import { Example } from "@/components/home/support";
+import { Faq } from "@/components/home/faq";
+import CarouselProducts from "@/components/home/carousel";
+import { motion } from "framer-motion";
+import { Separator } from "@/components/ui/separator";
 
 export default function HomePage() {
   return (
@@ -12,10 +14,16 @@ export default function HomePage() {
       <HeroSection />
       <CategorySection />
       <FeaturedProducts />
-      <div className="h-96 bg-primary/60"></div>
+
+      <CarouselProducts />
+
       <TestimonialsSection />
-      {/* <SwipeCards /> */}
-      {/* What a life must be */}
+      <div className="flex flex-col-reverse md:flex-row px-6 md:px-12 lg:px-24 py-12 bg-primary/60">
+        <Example />
+        <Separator orientation="vertical" className="bg-amber-50" />
+
+        <Faq />
+      </div>
     </main>
   );
 }
