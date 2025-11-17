@@ -7,6 +7,7 @@ import { Faq } from "@/components/home/faq";
 import CarouselProducts from "@/components/home/carousel";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
+import { ProductCarousel } from "@/components/product-carousel";
 
 export default function HomePage() {
   return (
@@ -15,7 +16,8 @@ export default function HomePage() {
       <CategorySection />
       <FeaturedProducts />
 
-      <CarouselProducts />
+      {/* <CarouselProducts /> */}
+      <ProductCarousel />
 
       <TestimonialsSection />
       <div className="flex flex-col-reverse md:flex-row px-6 md:px-12 lg:px-24 py-12 bg-primary/60">

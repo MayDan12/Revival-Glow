@@ -120,6 +120,14 @@ export function Footer() {
               </li>
               <li>
                 <Link
+                  href="/policy"
+                  className="text-gray-800 hover:text-primary transition-colors"
+                >
+                  {"Policy"}
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/faq"
                   className="text-gray-800 hover:text-primary transition-colors"
                 >

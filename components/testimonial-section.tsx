@@ -1,7 +1,8 @@
 "use client";
 
-import { easeOut, motion } from "framer-motion";
-import { Star } from "lucide-react";
+import { motion } from "framer-motion";
+import { Star, ChevronLeft, ChevronRight } from "lucide-react";
+import { useState, useEffect } from "react";
 
 const testimonials = [
   {
@@ -42,36 +43,46 @@ const testimonials = [
   },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.6, ease: easeOut },
-  },
-};
-
 export function TestimonialsSection() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [autoPlay, setAutoPlay] = useState(true);
+
+  useEffect(() => {
+    if (!autoPlay) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [autoPlay]);
+
+  const goToPrevious = () => {
+    setCurrentIndex(
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+    );
+    setAutoPlay(false);
+  };
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    setAutoPlay(false);
+  };
+
+  const goToSlide = (index: number) => {
+    setCurrentIndex(index);
+    setAutoPlay(false);
+  };
+
   return (
-    <section className="py-10 px-4 md:px-8 bg-gradient-to-b from-background to-background/50">
+    <section className="py-20 px-4 md:px-8 bg-gradient-to-b from-background to-background/50">
       <div className="max-w-6xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           <h2 className="text-2xl md:text-4xl font-serif font-bold text-foreground mb-4">
             Loved by Our Community
@@ -82,51 +93,122 @@ export function TestimonialsSection() {
           </p>
         </motion.div>
 
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-        >
-          {testimonials.map((testimonial) => (
-            <motion.div
-              key={testimonial.id}
-              variants={itemVariants}
-              className="bg-white rounded-lg p-8 shadow-sm hover:shadow-md transition-shadow border border-border"
-            >
-              <div className="flex items-start gap-4 mb-4">
+        <div className="relative">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-lg font-serifs p-8 md:p-12 shadow-lg border border-border mb-8"
+          >
+            <div className="flex flex-col md:flex-row gap-8">
+              <div className="flex-shrink-0">
                 <img
-                  src={testimonial.image || "/placeholder.svg"}
-                  alt={testimonial.name}
-                  className="w-16 h-16 rounded-full object-cover"
+                  src={testimonials[currentIndex].image || "/placeholder.svg"}
+                  alt={testimonials[currentIndex].name}
+                  className="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-amber-100"
                 />
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">
-                    {testimonial.name}
+              </div>
+
+              <div className="flex-1 flex flex-col justify-center">
+                <div className="flex gap-1 mb-4">
+                  {Array.from({
+                    length: testimonials[currentIndex].rating,
+                  }).map((_, i) => (
+                    <Star
+                      key={i}
+                      size={20}
+                      className="fill-amber-400 text-amber-400"
+                    />
+                  ))}
+                </div>
+
+                <p className="text-xl text-foreground/90 font-serif leading-relaxed mb-6">
+                  "{testimonials[currentIndex].content}"
+                </p>
+
+                <div>
+                  <h3 className="text-lg font-semibold text-foreground">
+                    {testimonials[currentIndex].name}
                   </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {testimonial.role}
+                  <p className="text-muted-foreground">
+                    {testimonials[currentIndex].role}
                   </p>
                 </div>
               </div>
+            </div>
+          </motion.div>
 
-              <div className="flex gap-1 mb-4">
-                {Array.from({ length: testimonial.rating }).map((_, i) => (
-                  <Star
-                    key={i}
-                    size={16}
-                    className="fill-amber-400 text-amber-400"
+          <div className="flex items-center justify-between">
+            <button
+              onClick={goToPrevious}
+              className="p-2 rounded-full hover:bg-amber-50 transition-colors"
+              aria-label="Previous testimonial"
+            >
+              <ChevronLeft size={24} className="text-foreground" />
+            </button>
+
+            {/* Dot indicators */}
+            <div className="flex gap-2">
+              {testimonials.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => goToSlide(index)}
+                  className={`w-3 h-3 rounded-full transition-all ${
+                    index === currentIndex
+                      ? "bg-amber-500 w-8"
+                      : "bg-amber-200 hover:bg-amber-300"
+                  }`}
+                  aria-label={`Go to testimonial ${index + 1}`}
+                />
+              ))}
+            </div>
+
+            <button
+              onClick={goToNext}
+              className="p-2 rounded-full hover:bg-amber-50 transition-colors"
+              aria-label="Next testimonial"
+            >
+              <ChevronRight size={24} className="text-foreground" />
+            </button>
+          </div>
+
+          <div className="mt-10 pt-10 border-t border-amber-600">
+            <h3 className="text-2xl font-semibold font-serif text-foreground mb-8 text-center">
+              More Stories
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {testimonials.map((testimonial, index) => (
+                <motion.button
+                  key={testimonial.id}
+                  onClick={() => goToSlide(index)}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.1 }}
+                  viewport={{ once: true }}
+                  className={`p-4 rounded-lg text-left transition-all ${
+                    index === currentIndex
+                      ? "bg-amber-50 border-2 border-amber-500"
+                      : "bg-background border border-border hover:border-amber-300"
+                  }`}
+                >
+                  <img
+                    src={testimonial.image || "/placeholder.svg"}
+                    alt={testimonial.name}
+                    className="w-12 h-12 rounded-full object-cover mb-3"
                   />
-                ))}
-              </div>
-
-              <p className="text-foreground/80 leading-relaxed">
-                "{testimonial.content}"
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
+                  <h4 className="font-semibold text-sm text-foreground line-clamp-1">
+                    {testimonial.name}
+                  </h4>
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {testimonial.content}
+                  </p>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );

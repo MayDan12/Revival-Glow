@@ -49,6 +49,18 @@ export function FeaturedProducts() {
           </p>
         </motion.div>
 
+        {/* loading with skeleton */}
+        {loading && (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
+            {[...Array(8)].map((_, index) => (
+              <div
+                key={index}
+                className="animate-pulse bg-gray-200 rounded-lg h-64"
+              ></div>
+            ))}
+          </div>
+        )}
+
         <motion.div
           variants={containerVariants}
           initial="hidden"
