@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Noto_Serif, Bree_Serif } from "next/font/google";
 import { CartProvider } from "@/contexts/cart-context";
 import "./globals.css";
 
@@ -11,6 +11,18 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const notoSerif = Noto_Serif({
+  variable: "--font-noto-serif",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+});
+
+const breeSerif = Bree_Serif({
+  variable: "--font-bree-serif",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${notoSerif.variable} ${breeSerif.variable} antialiased`}
       >
         <CartProvider>{children}</CartProvider>
         {/* <Analytics /> */}

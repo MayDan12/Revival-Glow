@@ -122,7 +122,7 @@ export default function ReturnsPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+            className="text-2xl md:text-4xl font-serif font-bold text-foreground mb-4"
           >
             Returns & Refunds
           </motion.h1>
@@ -165,7 +165,7 @@ export default function ReturnsPage() {
       {/* Return Process Steps */}
       <section className="py-16 px-4 md:px-8 bg-background">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-foreground mb-12 text-center">
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-12 text-center">
             How to Return
           </h2>
 
@@ -206,7 +206,7 @@ export default function ReturnsPage() {
       {/* Return Conditions */}
       <section className="py-16 px-4 md:px-8 bg-gradient-to-b from-background to-amber-50/20">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-foreground mb-12 text-center">
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-12 text-center">
             Return Conditions
           </h2>
 
@@ -248,7 +248,7 @@ export default function ReturnsPage() {
       {/* FAQ Section */}
       <section className="py-16 px-4 md:px-8 bg-background">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-3xl font-bold text-foreground mb-12 text-center">
+          <h2 className="text-2xl font-serif font-bold text-foreground mb-12 text-center">
             Frequently Asked Questions
           </h2>
 
@@ -283,7 +283,7 @@ export default function ReturnsPage() {
       <section className="py-12 px-4 md:px-8 bg-gradient-to-r from-amber-50 to-background">
         <div className="max-w-4xl mx-auto">
           <div className="bg-white border border-border rounded-lg p-6 md:p-8 text-center">
-            <h3 className="text-2xl font-bold text-foreground mb-4">
+            <h3 className="text-2xl font-serif font-bold text-foreground mb-4">
               Need Help with Your Return?
             </h3>
             <p className="text-muted-foreground mb-6">

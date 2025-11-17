@@ -124,15 +124,15 @@ export function TestimonialsSection() {
                   ))}
                 </div>
 
-                <p className="text-xl text-foreground/90 font-serif leading-relaxed mb-6">
+                <p className="text-lg text-foreground/90 font-serif leading-relaxed mb-6">
                   "{testimonials[currentIndex].content}"
                 </p>
 
                 <div>
-                  <h3 className="text-lg font-semibold text-foreground">
+                  <h3 className="text-lg font-semibold font-serif text-foreground">
                     {testimonials[currentIndex].name}
                   </h3>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground font-serif">
                     {testimonials[currentIndex].role}
                   </p>
                 </div>
@@ -178,7 +178,7 @@ export function TestimonialsSection() {
             <h3 className="text-2xl font-semibold font-serif text-foreground mb-8 text-center">
               More Stories
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
               {testimonials.map((testimonial, index) => (
                 <motion.button
                   key={testimonial.id}

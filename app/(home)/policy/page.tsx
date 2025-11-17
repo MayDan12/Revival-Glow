@@ -148,7 +148,7 @@ export default function PolicyPage() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-bold text-foreground mb-4"
+            className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4"
           >
             Terms of Service & Privacy Policy
           </motion.h1>
@@ -198,7 +198,7 @@ export default function PolicyPage() {
                 variants={sectionVariants}
                 className="scroll-mt-32"
               >
-                <h2 className="text-3xl font-bold text-foreground mb-8">
+                <h2 className="text-3xl font-serif font-bold text-foreground mb-8">
                   {section.title}
                 </h2>
 
