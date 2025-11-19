@@ -107,7 +107,7 @@ export const products = [
     price: 58,
     originalPrice: null,
     images: [
-      "/luxury-skincare-eye-cream-jar.jpg",
+      "/luxury-skincare-cream-jar-minimalist-design.jpg",
       "/placeholder.svg?key=eyecream2",
       "/placeholder.svg?key=eyecream3",
     ],
