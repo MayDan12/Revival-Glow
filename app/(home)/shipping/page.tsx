@@ -165,6 +165,7 @@ export default function ShippingPage() {
           <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-12 text-center">
             How It Works
           </h2>
+          {/* Timeline Steps */}
 
           <motion.div
             variants={containerVariants}
