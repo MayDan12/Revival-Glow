@@ -31,13 +31,14 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setSubmitted(true);
+    const key = process.env.NEXT_WEBFORMS_API_KEY!;
     try {
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
       formDataObj.append("email", formData.email);
       formDataObj.append("subject", formData.subject);
       formDataObj.append("message", formData.message);
-      formDataObj.append("access_key", "fa25ea99-e604-4c39-8726-da5bc667852f");
+      formDataObj.append("access_key", key);
 
       const response = await fetch("https://api.web3forms.com/submit", {
         method: "POST",
