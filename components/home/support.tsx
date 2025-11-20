@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
+import Link from "next/link";
 
 type BlockInTextProps = {
   tag: string;
@@ -52,7 +53,7 @@ const BlockInTextCard = ({ tag, text, examples }: BlockInTextProps) => {
         <hr className="border-amber-50" />
       </div>
       <Button className="w-full bg-transparent rounded-full border border-amber-50 py-2 text-sm font-medium transition-colors hover:bg-amber-50 hover:text-primary">
-        Contact Support
+        <Link href="/contact"> Contact Support</Link>
       </Button>
     </div>
   );

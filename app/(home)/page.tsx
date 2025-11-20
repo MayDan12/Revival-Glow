@@ -20,9 +20,9 @@ export default function HomePage() {
       <ProductCarousel />
 
       <TestimonialsSection />
-      <div className="flex flex-col-reverse md:flex-row px-6 md:px-12 lg:px-24 py-12 bg-primary/60">
+      <div className="flex gap-3 flex-col-reverse md:flex-row px-6 md:px-12 lg:px-24 py-12 bg-primary/60">
         <Example />
-        <Separator orientation="vertical" className="bg-amber-50" />
+        <div className="bg-amber-50 w-1 "></div>
 
         <Faq />
       </div>

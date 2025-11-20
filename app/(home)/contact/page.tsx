@@ -46,7 +46,7 @@ export default function ContactPage() {
     {
       icon: Mail,
       title: "Email",
-      detail: "support@revivalglow.com",
+      detail: "support@revivalglowcare.com",
       description: "We'll respond within 24 hours",
     },
     {
