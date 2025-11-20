@@ -82,7 +82,7 @@ export default function ProductsPage() {
 
         {/* Breadcrumb */}
         <nav className="mb-4 text-sm">
-          <ol className="flex items-center gap-2 text-muted-foreground">
+          <ol className="flex font-serif items-center gap-2 text-muted-foreground">
             <li>
               <Link
                 href="/"

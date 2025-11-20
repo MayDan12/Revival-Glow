@@ -455,7 +455,7 @@ export function ProductGrid({
     <div className="space-y-4">
       {/* Header with results count and items per page selector */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm font-serif text-muted-foreground">
           Showing {startItem}-{endItem} of {totalProducts} products
         </p>
         <div className="flex items-center gap-2">
@@ -540,7 +540,7 @@ export function ProductGrid({
 
               <div className="p-3">
                 <Link href={`/products/${product.id}`}>
-                  <h3 className="md:text-lg font-medium text-foreground mb-1 group-hover:text-primary transition-colors">
+                  <h3 className="md:text-lg font-serif font-medium text-foreground mb-1 group-hover:text-primary transition-colors">
                     {product.name}
                   </h3>
                 </Link>

@@ -127,7 +127,7 @@ function FeaturedProduct({ product }: { product: Product }) {
         </div>
         <div className="p-4">
           <Link href={`/products/${product.id}`} key={product.id}>
-            <h3 className="text-lg font-medium text-foreground mb-1">
+            <h3 className="text-lg font-serif font-medium text-foreground mb-1">
               {product.name}
             </h3>
           </Link>
