@@ -54,9 +54,11 @@ export default function ContactPage() {
         });
         toast.success("Message sent successfully!");
       }
-
+    } catch (error) {
       toast.error("Failed to send message. Please try again.");
-    } catch (error) {}
+    } finally {
+      setSubmitted(false);
+    }
   };
 
   const containerVariants = {

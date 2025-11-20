@@ -65,6 +65,7 @@ import {
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
+import Image from "next/image";
 
 type MenuState = "full" | "collapsed" | "hidden";
 
@@ -966,15 +967,15 @@ export default function Sidebar() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full"
               >
-                <img
-                  src="https://cmsfullform.com/themes/cmsfullform/Backend/Assets/favicon/apple-icon-60x60.png"
-                  alt="CMSFullForm"
-                  width={32}
-                  height={32}
+                <Image
+                  src="/revivalglows.png"
+                  alt="Revival Glow"
+                  width={40}
+                  height={40}
                   className="flex-shrink-0"
                 />
                 <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white">
-                  CMSFullForm
+                  Revival Glow
                 </span>
               </Link>
             </div>
@@ -1065,22 +1066,23 @@ export default function Sidebar() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full"
               >
-                <img
-                  src="https://cmsfullform.com/themes/cmsfullform/Backend/Assets/favicon/apple-icon-60x60.png"
-                  alt="CMSFullForm"
-                  width={32}
-                  height={32}
+                <Image
+                  src="/revivalglows.png"
+                  alt="Revival Glow"
+                  width={40}
+                  height={40}
                   className="flex-shrink-0 hidden dark:block"
                 />
-                <img
-                  src="https://cmsfullform.com/themes/cmsfullform/Backend/Assets/favicon/apple-icon-60x60.png"
-                  alt="CMSFullForm"
-                  width={32}
-                  height={32}
+                <Image
+                  src="/revivalglows.png"
+                  alt="Revival Glow"
+                  width={40}
+                  height={40}
                   className="flex-shrink-0 block dark:hidden"
                 />
+
                 <span className="text-lg font-semibold hover:cursor-pointer text-gray-900 dark:text-white transition-opacity duration-200">
-                  CMSFullForm
+                  Revival Glow
                 </span>
               </Link>
             ) : (
