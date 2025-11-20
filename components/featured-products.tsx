@@ -37,7 +37,7 @@ export function FeaturedProducts() {
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           viewport={{ once: true }}
-          className="text-center mb-16"
+          className="text-center mb-8"
         >
           <h2 className="text-3xl md:text-4xl font-serif text-gray-700 mb-4 text-balance">
             {"Featured Products"}
@@ -51,7 +51,7 @@ export function FeaturedProducts() {
 
         {/* loading with skeleton */}
         {loading && (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-12">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
             {[...Array(8)].map((_, index) => (
               <div
                 key={index}
@@ -66,7 +66,7 @@ export function FeaturedProducts() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-8 mb-12"
+          className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-4 mb-8"
         >
           {products.map((product) => (
             <motion.div key={product.id} variants={itemVariants}>

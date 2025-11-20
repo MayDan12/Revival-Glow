@@ -91,7 +91,7 @@ export default function ProductPage() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumb */}
         <nav className="mb-8 text-sm">
-          <ol className="flex items-center gap-2 text-muted-foreground">
+          <ol className="flex font-serif items-center gap-2 text-muted-foreground">
             <li>
               <Link
                 href="/"

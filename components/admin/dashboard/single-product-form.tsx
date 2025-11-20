@@ -29,6 +29,7 @@ const CATEGORIES = [
   "Masks",
   "Sunscreen",
   "Eye Care",
+  "Hair Oil",
 ];
 
 const SKIN_TYPES = [
