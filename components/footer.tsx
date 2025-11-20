@@ -40,7 +40,7 @@ export function Footer() {
             <div className="text-2xl text-gray-800 font-serif mb-4">
               {"Revival Glow"}
             </div>
-            <p className="text-gray-800  leading-relaxed max-w-md">
+            <p className="text-gray-800 font-serif  leading-relaxed max-w-md">
               {
                 "Handcrafted hair care inspired by African and Ayurvedic traditions. We believe every strand deserves deep restoration and radiant beauty from root to tip."
               }
@@ -59,8 +59,10 @@ export function Footer() {
 
           {/* Quick Links */}
           <motion.div variants={itemVariants}>
-            <h3 className="font-medium text-gray-800 mb-4">{"Quick Links"}</h3>
-            <ul className="space-y-2">
+            <h3 className="font-medium text-gray-800 font-serif mb-4">
+              {"Quick Links"}
+            </h3>
+            <ul className="space-y-2 font-serif">
               <li>
                 <Link
                   href="/products"
@@ -98,10 +100,10 @@ export function Footer() {
 
           {/* Customer Care */}
           <motion.div variants={itemVariants}>
-            <h3 className="font-medium text-gray-800 mb-4">
+            <h3 className="font-medium text-gray-800 mb-4 font-serif">
               {"Customer Care"}
             </h3>
-            <ul className="space-y-2">
+            <ul className="space-y-2 font-serif">
               <li>
                 <Link
                   href="/shipping"
@@ -145,11 +147,13 @@ export function Footer() {
           viewport={{ once: true }}
           className="border-t border-gray-300 pt-8 text-center"
         >
-          <p className="text-gray-800 text-sm">
+          <p className="text-gray-800 font-serif text-sm">
             {"For inquiries, please contact:"}
           </p>
-          <p className="text-gray-800 text-sm">{"info@revivalglowcare.com"}</p>
-          <p className="text-gray-800 text-sm">
+          <p className="text-gray-800 font-serif text-sm">
+            {"info@revivalglowcare.com"}
+          </p>
+          <p className="text-gray-800 font-serif text-sm">
             {"© 2025 Revival Glow. All rights reserved."}
           </p>
         </motion.div>

@@ -207,28 +207,28 @@ export function Header() {
             <div className="flex flex-col gap-3 mt-4">
               <Link
                 href="/"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={closeMenu}
               >
                 Home
               </Link>
               <Link
                 href="/products"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={closeMenu}
               >
                 Products
               </Link>
               <Link
                 href="/about"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={closeMenu}
               >
                 About
               </Link>
               <Link
                 href="/contact"
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                 onClick={closeMenu}
               >
                 Contact
@@ -269,7 +269,7 @@ export function Header() {
               >
                 <Link
                   href={"/"}
-                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Home
                 </Link>
@@ -283,7 +283,7 @@ export function Header() {
                 >
                   <Link
                     href={`/${item.toLowerCase()}`}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm font-serif font-medium text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {item}
                   </Link>
