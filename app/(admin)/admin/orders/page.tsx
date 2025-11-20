@@ -180,26 +180,21 @@ export default function AdminOrdersPage() {
     }
   };
 
-  // Status badge variants
-  const getStatusVariant = (status: OrderStatus) => {
-    const variants = {
-      pending: "secondary",
-      processing: "default",
-      shipped: "outline",
-      delivered: "success",
-      cancelled: "destructive",
+  const getStatusClassName = (status: OrderStatus) => {
+    const classNames = {
+      delivered: "bg-green-500 text-white border-green-500",
+      paid: "bg-green-500 text-white border-green-500",
     } as const;
-    return variants[status];
+
+    return classNames[status as keyof typeof classNames] || "";
   };
 
-  const getPaymentStatusVariant = (status: PaymentStatus) => {
-    const variants = {
-      pending: "secondary",
-      paid: "success",
-      failed: "destructive",
-      refunded: "outline",
+  const getPaymentStatusClassName = (status: PaymentStatus) => {
+    const classNames = {
+      paid: "bg-green-500 text-white border-green-500",
     } as const;
-    return variants[status];
+
+    return classNames[status as keyof typeof classNames] || "";
   };
 
   // Format currency
@@ -564,7 +559,7 @@ export default function AdminOrdersPage() {
                           </td>
                           <td className="py-4 px-4">
                             <Badge
-                              variant={getPaymentStatusVariant(
+                              className={getPaymentStatusClassName(
                                 order.payment_status
                               )}
                             >
@@ -573,7 +568,7 @@ export default function AdminOrdersPage() {
                           </td>
                           <td className="py-4 px-4">
                             <Badge
-                              variant={getStatusVariant(order.order_status)}
+                              className={getStatusClassName(order.order_status)}
                             >
                               {order.order_status}
                             </Badge>

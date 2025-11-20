@@ -128,14 +128,14 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Info Cards */}
-      <section className="py-16 px-4 md:px-8 bg-background">
+      <section className=" pt-6 px-4 md:px-8 bg-background">
         <div className="max-w-6xl mx-auto">
           <motion.div
             variants={containerVariants}
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
           >
             {contactInfo.map((info, index) => {
               const IconComponent = info.icon;
@@ -167,7 +167,7 @@ export default function ContactPage() {
       </section>
 
       {/* Contact Form Section */}
-      <section className="py-16 px-4 md:px-8 bg-gradient-to-b from-background to-amber-50/20">
+      <section className=" px-4 md:px-8 bg-gradient-to-b from-background to-amber-50/20">
         <div className="max-w-2xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -279,7 +279,7 @@ export default function ContactPage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-16 px-4 md:px-8 bg-background">
+      <section className="py-8 px-4 md:px-8 bg-background">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-3xl font-serif font-bold text-foreground mb-12 text-center">
             Frequently Asked Questions
