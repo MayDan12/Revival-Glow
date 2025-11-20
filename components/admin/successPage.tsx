@@ -114,6 +114,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
+import { formatCurrency } from "@/utils/currency";
 
 export default function SuccessPage() {
   const searchParams = useSearchParams();
@@ -223,7 +224,8 @@ export default function SuccessPage() {
                 Order Total
               </p>
               <p className="text-3xl font-bold text-foreground">
-                ${order.total_amount ? order.total_amount.toFixed(2) : "0.00"}
+                {formatCurrency(order.total_amount)}
+                {/* {order.total_amount ? order.total_amount.toFixed(2) : "0.00"} */}
               </p>
             </div>
             <div>

@@ -254,39 +254,39 @@ const menuData: MenuSection[] = [
       {
         id: "orders",
         label: "Orders",
-        href: "/orders",
+        href: "/admin/orders",
         icon: ShoppingCart,
         badge: "5",
         children: [
           {
             id: "all-orders",
             label: "All Orders",
-            href: "/orders/all",
+            href: "/admin/orders",
             icon: ShoppingCart,
           },
           {
             id: "pending",
             label: "Pending",
-            href: "/orders/pending",
+            href: "/admin/orders/pending",
             icon: Clock,
             badge: "3",
           },
           {
             id: "processing",
             label: "Processing",
-            href: "/orders/processing",
+            href: "/admin/orders/processing",
             icon: Timer,
           },
           {
             id: "shipped",
             label: "Shipped",
-            href: "/orders/shipped",
+            href: "/admin/orders/shipped",
             icon: Truck,
           },
           {
             id: "delivered",
             label: "Delivered",
-            href: "/orders/delivered",
+            href: "/admin/orders/delivered",
             icon: Check,
           },
         ],
@@ -294,37 +294,37 @@ const menuData: MenuSection[] = [
       {
         id: "customers",
         label: "Customers",
-        href: "/customers",
+        href: "/admin/customers",
         icon: Users2,
         children: [
           {
             id: "all-customers",
             label: "All Customers",
-            href: "/customers/all",
+            href: "/admin/customers",
             icon: Users2,
           },
           {
             id: "segments",
             label: "Segments",
-            href: "/customers/segments",
+            href: "/admin/customers/segments",
             icon: Filter,
             children: [
               {
                 id: "vip",
                 label: "VIP Customers",
-                href: "/customers/segments/vip",
+                href: "/admin/customers/segments/vip",
                 icon: Star,
               },
               {
                 id: "new",
                 label: "New Customers",
-                href: "/customers/segments/new",
+                href: "/admin/customers/segments/new",
                 icon: UserPlus,
               },
               {
                 id: "inactive",
                 label: "Inactive",
-                href: "/customers/segments/inactive",
+                href: "/admin/customers/segments/inactive",
                 icon: UserX,
               },
             ],
@@ -332,7 +332,7 @@ const menuData: MenuSection[] = [
           {
             id: "reviews",
             label: "Customer Reviews",
-            href: "/customers/reviews",
+            href: "/admin/customers/reviews",
             icon: MessageSquare,
           },
         ],
