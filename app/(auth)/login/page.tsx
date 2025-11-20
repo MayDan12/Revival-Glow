@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -30,6 +31,7 @@ export default function AdminLoginPage() {
     if (res?.error) {
       setError("Invalid email or password");
     } else {
+      toast.success("Logged in successfully!");
       router.push("/admin"); // ✅ redirect after login
     }
   };

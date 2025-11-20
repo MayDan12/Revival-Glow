@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono, Noto_Serif, Bree_Serif } from "next/font/google";
 import { CartProvider } from "@/contexts/cart-context";
 import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,6 +44,7 @@ export default function RootLayout({
         className={`${notoSerif.variable} ${breeSerif.variable} antialiased`}
       >
         <CartProvider>{children}</CartProvider>
+        <Toaster />
         {/* <Analytics /> */}
       </body>
     </html>
