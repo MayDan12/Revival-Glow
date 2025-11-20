@@ -255,7 +255,7 @@ export default function EditProductPage() {
 
             {/* Actions */}
             <div className="flex gap-3 justify-end pt-4">
-              <Link href="/admin/products/list">
+              <Link href="/admin/products">
                 <Button variant="outline">Cancel</Button>
               </Link>
               <Button

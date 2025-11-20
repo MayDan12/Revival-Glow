@@ -12,7 +12,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SingleProductForm } from "@/components/admin/dashboard/single-product-form";
 import { BulkProductUpload } from "@/components/admin/dashboard/bulk-product-upload";
 import { motion } from "framer-motion";
-import { Product } from "@/types/product";
 
 export default function AdminProductsPage() {
   const [activeTab, setActiveTab] = useState("single");
