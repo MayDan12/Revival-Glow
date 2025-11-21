@@ -211,44 +211,32 @@ const menuData: MenuSection[] = [
             href: "/admin/products",
             icon: Package,
           },
-          {
-            id: "categories",
-            label: "Categories",
-            href: "/products/categories",
-            icon: Tag,
-            children: [
-              {
-                id: "electronics",
-                label: "Electronics",
-                href: "/products/categories/electronics",
-                icon: Monitor,
-              },
-              {
-                id: "clothing",
-                label: "Clothing",
-                href: "/products/categories/clothing",
-                icon: ShoppingCart,
-              },
-              {
-                id: "books",
-                label: "Books",
-                href: "/products/categories/books",
-                icon: FileText,
-              },
-            ],
-          },
-          {
-            id: "inventory",
-            label: "Inventory",
-            href: "/products/inventory",
-            icon: Database,
-          },
-          {
-            id: "reviews",
-            label: "Reviews",
-            href: "/products/reviews",
-            icon: Star,
-          },
+          // {
+          //   id: "categories",
+          //   label: "Categories",
+          //   href: "/admin/products/categories",
+          //   icon: Tag,
+          //   children: [
+          //     {
+          //       id: "electronics",
+          //       label: "Electronics",
+          //       href: "/products/categories/electronics",
+          //       icon: Monitor,
+          //     },
+          //     {
+          //       id: "clothing",
+          //       label: "Clothing",
+          //       href: "/products/categories/clothing",
+          //       icon: ShoppingCart,
+          //     },
+          //     {
+          //       id: "books",
+          //       label: "Books",
+          //       href: "/products/categories/books",
+          //       icon: FileText,
+          //     },
+          //   ],
+          // },
         ],
       },
       {
@@ -264,19 +252,19 @@ const menuData: MenuSection[] = [
             href: "/admin/orders",
             icon: ShoppingCart,
           },
-          {
-            id: "pending",
-            label: "Pending",
-            href: "/admin/orders/pending",
-            icon: Clock,
-            badge: "3",
-          },
-          {
-            id: "processing",
-            label: "Processing",
-            href: "/admin/orders/processing",
-            icon: Timer,
-          },
+          // {
+          //   id: "pending",
+          //   label: "Pending",
+          //   href: "/admin/orders/pending",
+          //   icon: Clock,
+          //   badge: "3",
+          // },
+          // {
+          //   id: "processing",
+          //   label: "Processing",
+          //   href: "/admin/orders/processing",
+          //   icon: Timer,
+          // },
           {
             id: "shipped",
             label: "Shipped",
@@ -303,32 +291,32 @@ const menuData: MenuSection[] = [
             href: "/admin/customers",
             icon: Users2,
           },
-          {
-            id: "segments",
-            label: "Segments",
-            href: "/admin/customers/segments",
-            icon: Filter,
-            children: [
-              {
-                id: "vip",
-                label: "VIP Customers",
-                href: "/admin/customers/segments/vip",
-                icon: Star,
-              },
-              {
-                id: "new",
-                label: "New Customers",
-                href: "/admin/customers/segments/new",
-                icon: UserPlus,
-              },
-              {
-                id: "inactive",
-                label: "Inactive",
-                href: "/admin/customers/segments/inactive",
-                icon: UserX,
-              },
-            ],
-          },
+          // {
+          //   id: "segments",
+          //   label: "Segments",
+          //   href: "/admin/customers/segments",
+          //   icon: Filter,
+          //   children: [
+          //     {
+          //       id: "vip",
+          //       label: "VIP Customers",
+          //       href: "/admin/customers/segments/vip",
+          //       icon: Star,
+          //     },
+          //     {
+          //       id: "new",
+          //       label: "New Customers",
+          //       href: "/admin/customers/segments/new",
+          //       icon: UserPlus,
+          //     },
+          //     {
+          //       id: "inactive",
+          //       label: "Inactive",
+          //       href: "/admin/customers/segments/inactive",
+          //       icon: UserX,
+          //     },
+          //   ],
+          // },
           {
             id: "reviews",
             label: "Customer Reviews",
@@ -336,6 +324,12 @@ const menuData: MenuSection[] = [
             icon: MessageSquare,
           },
         ],
+      },
+      {
+        id: "inventory",
+        label: "Inventory",
+        href: "/admin/inventory",
+        icon: Database,
       },
     ],
   },
@@ -404,327 +398,6 @@ const menuData: MenuSection[] = [
       },
     ],
   },
-  //   {
-  //     id: "content",
-  //     label: "Content Management",
-  //     items: [
-  //       {
-  //         id: "pages",
-  //         label: "Pages",
-  //         href: "/pages",
-  //         icon: FileText,
-  //         children: [
-  //           {
-  //             id: "all-pages",
-  //             label: "All Pages",
-  //             href: "/pages/all",
-  //             icon: FileText,
-  //           },
-  //           {
-  //             id: "blog",
-  //             label: "Blog",
-  //             href: "/pages/blog",
-  //             icon: Edit,
-  //             children: [
-  //               {
-  //                 id: "posts",
-  //                 label: "Posts",
-  //                 href: "/pages/blog/posts",
-  //                 icon: FileText,
-  //               },
-  //               {
-  //                 id: "categories",
-  //                 label: "Categories",
-  //                 href: "/pages/blog/categories",
-  //                 icon: Tag,
-  //               },
-  //               {
-  //                 id: "tags",
-  //                 label: "Tags",
-  //                 href: "/pages/blog/tags",
-  //                 icon: Bookmark,
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             id: "landing-pages",
-  //             label: "Landing Pages",
-  //             href: "/pages/landing",
-  //             icon: Globe,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "media",
-  //         label: "Media",
-  //         href: "/media",
-  //         icon: ImageIcon,
-  //         children: [
-  //           {
-  //             id: "images",
-  //             label: "Images",
-  //             href: "/media/images",
-  //             icon: ImageIcon,
-  //           },
-  //           {
-  //             id: "videos",
-  //             label: "Videos",
-  //             href: "/media/videos",
-  //             icon: Play,
-  //           },
-  //           {
-  //             id: "audio",
-  //             label: "Audio",
-  //             href: "/media/audio",
-  //             icon: Headphones,
-  //           },
-  //           {
-  //             id: "documents",
-  //             label: "Documents",
-  //             href: "/media/documents",
-  //             icon: FileText,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "seo",
-  //         label: "SEO",
-  //         href: "/seo",
-  //         icon: Search,
-  //         isNew: true,
-  //         children: [
-  //           {
-  //             id: "keywords",
-  //             label: "Keywords",
-  //             href: "/seo/keywords",
-  //             icon: Search,
-  //           },
-  //           {
-  //             id: "meta-tags",
-  //             label: "Meta Tags",
-  //             href: "/seo/meta-tags",
-  //             icon: Tag,
-  //           },
-  //           {
-  //             id: "sitemap",
-  //             label: "Sitemap",
-  //             href: "/seo/sitemap",
-  //             icon: Map,
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: "team",
-  //     label: "Team & Communication",
-  //     items: [
-  //       {
-  //         id: "members",
-  //         label: "Members",
-  //         href: "/members",
-  //         icon: Users2,
-  //         children: [
-  //           {
-  //             id: "all-members",
-  //             label: "All Members",
-  //             href: "/members/all",
-  //             icon: Users2,
-  //           },
-  //           {
-  //             id: "roles",
-  //             label: "Roles",
-  //             href: "/members/roles",
-  //             icon: Shield,
-  //             children: [
-  //               {
-  //                 id: "admin",
-  //                 label: "Administrators",
-  //                 href: "/members/roles/admin",
-  //                 icon: Shield,
-  //               },
-  //               {
-  //                 id: "editor",
-  //                 label: "Editors",
-  //                 href: "/members/roles/editor",
-  //                 icon: Edit,
-  //               },
-  //               {
-  //                 id: "viewer",
-  //                 label: "Viewers",
-  //                 href: "/members/roles/viewer",
-  //                 icon: Eye,
-  //               },
-  //             ],
-  //           },
-  //           {
-  //             id: "permissions",
-  //             label: "Permissions",
-  //             href: "/members/permissions",
-  //             icon: Lock,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "chat",
-  //         label: "Chat",
-  //         href: "/chat",
-  //         icon: MessagesSquare,
-  //         badge: "12",
-  //         children: [
-  //           {
-  //             id: "channels",
-  //             label: "Channels",
-  //             href: "/chat/channels",
-  //             icon: MessagesSquare,
-  //           },
-  //           {
-  //             id: "direct-messages",
-  //             label: "Direct Messages",
-  //             href: "/chat/dm",
-  //             icon: Mail,
-  //           },
-  //           {
-  //             id: "notifications",
-  //             label: "Notifications",
-  //             href: "/chat/notifications",
-  //             icon: Bell,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "meetings",
-  //         label: "Meetings",
-  //         href: "/meetings",
-  //         icon: Video,
-  //         children: [
-  //           {
-  //             id: "scheduled",
-  //             label: "Scheduled",
-  //             href: "/meetings/scheduled",
-  //             icon: Calendar,
-  //           },
-  //           {
-  //             id: "recordings",
-  //             label: "Recordings",
-  //             href: "/meetings/recordings",
-  //             icon: Camera,
-  //           },
-  //           {
-  //             id: "rooms",
-  //             label: "Meeting Rooms",
-  //             href: "/meetings/rooms",
-  //             icon: Monitor,
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     id: "tools",
-  //     label: "Tools & Utilities",
-  //     items: [
-  //       {
-  //         id: "plugins",
-  //         label: "Plugins",
-  //         href: "/plugins",
-  //         icon: Puzzle,
-  //         badge: "8",
-  //         children: [
-  //           {
-  //             id: "installed",
-  //             label: "Plugins đã cài",
-  //             href: "/plugins",
-  //             icon: Package,
-  //           },
-  //           {
-  //             id: "add-new",
-  //             label: "Thêm mới",
-  //             href: "/plugins",
-  //             icon: Plus,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "api",
-  //         label: "API",
-  //         href: "/api",
-  //         icon: Code,
-  //         children: [
-  //           {
-  //             id: "documentation",
-  //             label: "Documentation",
-  //             href: "/api/docs",
-  //             icon: FileText,
-  //           },
-  //           {
-  //             id: "keys",
-  //             label: "API Keys",
-  //             href: "/api/keys",
-  //             icon: Key,
-  //           },
-  //           {
-  //             id: "webhooks",
-  //             label: "Webhooks",
-  //             href: "/api/webhooks",
-  //             icon: Zap,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "integrations",
-  //         label: "Integrations",
-  //         href: "/integrations",
-  //         icon: Layers,
-  //         children: [
-  //           {
-  //             id: "third-party",
-  //             label: "Third Party",
-  //             href: "/integrations/third-party",
-  //             icon: Globe,
-  //           },
-  //           {
-  //             id: "plugins",
-  //             label: "Plugins",
-  //             href: "/integrations/plugins",
-  //             icon: Plus,
-  //           },
-  //           {
-  //             id: "extensions",
-  //             label: "Extensions",
-  //             href: "/integrations/extensions",
-  //             icon: Zap,
-  //           },
-  //         ],
-  //       },
-  //       {
-  //         id: "backup",
-  //         label: "Backup & Restore",
-  //         href: "/backup",
-  //         icon: Database,
-  //         children: [
-  //           {
-  //             id: "create-backup",
-  //             label: "Create Backup",
-  //             href: "/backup/create",
-  //             icon: Download,
-  //           },
-  //           {
-  //             id: "restore",
-  //             label: "Restore",
-  //             href: "/backup/restore",
-  //             icon: Upload,
-  //           },
-  //           {
-  //             id: "schedule",
-  //             label: "Schedule",
-  //             href: "/backup/schedule",
-  //             icon: Clock,
-  //           },
-  //         ],
-  //       },
-  //     ],
-  //   },
 ];
 
 export default function Sidebar() {
