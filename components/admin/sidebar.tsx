@@ -61,6 +61,7 @@ import {
   TrendingDown,
   Puzzle,
   PlusCircleIcon,
+  TruckIcon,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -330,6 +331,12 @@ const menuData: MenuSection[] = [
         label: "Inventory",
         href: "/admin/inventory",
         icon: Database,
+      },
+      {
+        id: "shipments",
+        label: "Shipments",
+        href: "/admin/shipments",
+        icon: TruckIcon,
       },
     ],
   },
