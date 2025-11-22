@@ -642,7 +642,7 @@ export default function Sidebar() {
             {/* Header */}
             <div className="h-16 px-3 flex items-center border-b border-gray-200 dark:border-[#1F1F23]">
               <Link
-                href="https://cmsfullform.com/"
+                href="/admin"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full"
@@ -741,7 +741,7 @@ export default function Sidebar() {
           <div className="h-16 px-3 flex items-center border-b border-gray-200 dark:border-[#1F1F23]">
             {showText ? (
               <Link
-                href="https://cmsfullform.com/"
+                href="/admin"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 w-full"
@@ -767,19 +767,19 @@ export default function Sidebar() {
               </Link>
             ) : (
               <div className="flex justify-center w-full">
-                <img
-                  src="https://cmsfullform.com/themes/cmsfullform/Backend/Assets/favicon/apple-icon-60x60.png"
-                  alt="CMSFullForm"
-                  width={32}
-                  height={32}
+                <Image
+                  src="/revivalglows.png"
+                  alt="Revival Glow"
+                  width={40}
+                  height={40}
                   className="flex-shrink-0 hidden dark:block"
                 />
-                <img
-                  src="https://cmsfullform.com/themes/cmsfullform/Backend/Assets/favicon/apple-icon-60x60.png"
-                  alt="CMSFullForm"
-                  width={32}
-                  height={32}
-                  className="flex-shrink-0 block dark:hidden"
+                <Image
+                  src="/revivalglows.png"
+                  alt="Revival Glow"
+                  width={40}
+                  height={40}
+                  className="flex-shrink-0 hidden dark:block"
                 />
               </div>
             )}

@@ -208,6 +208,16 @@ export default function InventoryManagement() {
       }));
 
       // In a real app, you'd batch update the database
+      for (const item of updates) {
+        const { error } = await supabase
+          .from("products")
+          .update(item)
+          .eq("id", item.id);
+
+        if (error) {
+          console.error("Update failed for ID:", item.id, error);
+        }
+      }
 
       // For now, we'll update locally
       setProducts((prev) =>
