@@ -336,7 +336,7 @@ export default function SuccessPage() {
 
         <div className="flex flex-col sm:flex-row gap-3">
           <Link
-            href={`/track/${order.id}`}
+            href={`/track/${sessionId}`}
             className="flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition font-medium"
           >
             Track Order

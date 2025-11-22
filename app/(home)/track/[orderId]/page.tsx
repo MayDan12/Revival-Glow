@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import {
   Truck,
   MapPin,
@@ -15,16 +15,17 @@ import Link from "next/link";
 export default function TrackingPage({
   params,
 }: {
-  params: { orderId: string };
+  params: Promise<{ orderId: string }>;
 }) {
   const [order, setOrder] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [expandedInfo, setExpandedInfo] = useState<string | null>("shipping");
-
+  const param = use(params);
+  const { orderId } = param;
   useEffect(() => {
     const fetchOrder = async () => {
       try {
-        const res = await fetch(`/api/orders/track?order_id=${params.orderId}`);
+        const res = await fetch(`/api/orders/track?session_id=${orderId}`);
         const data = await res.json();
 
         if (res.ok && data.order) {
@@ -38,7 +39,7 @@ export default function TrackingPage({
     };
 
     fetchOrder();
-  }, [params.orderId]);
+  }, [orderId]);
 
   if (loading) {
     return (
