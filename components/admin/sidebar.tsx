@@ -340,71 +340,71 @@ const menuData: MenuSection[] = [
       },
     ],
   },
-  {
-    id: "finance",
-    label: "Finance",
-    items: [
-      {
-        id: "transactions",
-        label: "Transactions",
-        href: "/transactions",
-        icon: Wallet,
-        children: [
-          {
-            id: "all-transactions",
-            label: "All Transactions",
-            href: "/transactions/all",
-            icon: Wallet,
-          },
-          {
-            id: "income",
-            label: "Income",
-            href: "/transactions/income",
-            icon: TrendingUp,
-          },
-          {
-            id: "expenses",
-            label: "Expenses",
-            href: "/transactions/expenses",
-            icon: TrendingDown,
-          },
-        ],
-      },
-      {
-        id: "invoices",
-        label: "Invoices",
-        href: "/invoices",
-        icon: Receipt,
-        badge: "2",
-      },
-      {
-        id: "payments",
-        label: "Payments",
-        href: "/payments",
-        icon: CreditCard,
-        children: [
-          {
-            id: "payment-methods",
-            label: "Payment Methods",
-            href: "/payments/methods",
-            icon: CreditCard,
-          },
-          {
-            id: "payment-history",
-            label: "Payment History",
-            href: "/payments/history",
-            icon: Clock,
-          },
-          {
-            id: "refunds",
-            label: "Refunds",
-            href: "/payments/refunds",
-            icon: Minus,
-          },
-        ],
-      },
-    ],
-  },
+  // {
+  //   id: "finance",
+  //   label: "Finance",
+  //   items: [
+  //     {
+  //       id: "transactions",
+  //       label: "Transactions",
+  //       href: "/transactions",
+  //       icon: Wallet,
+  //       children: [
+  //         {
+  //           id: "all-transactions",
+  //           label: "All Transactions",
+  //           href: "/transactions/all",
+  //           icon: Wallet,
+  //         },
+  //         {
+  //           id: "income",
+  //           label: "Income",
+  //           href: "/transactions/income",
+  //           icon: TrendingUp,
+  //         },
+  //         {
+  //           id: "expenses",
+  //           label: "Expenses",
+  //           href: "/transactions/expenses",
+  //           icon: TrendingDown,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: "invoices",
+  //       label: "Invoices",
+  //       href: "/invoices",
+  //       icon: Receipt,
+  //       badge: "2",
+  //     },
+  //     {
+  //       id: "payments",
+  //       label: "Payments",
+  //       href: "/payments",
+  //       icon: CreditCard,
+  //       children: [
+  //         {
+  //           id: "payment-methods",
+  //           label: "Payment Methods",
+  //           href: "/payments/methods",
+  //           icon: CreditCard,
+  //         },
+  //         {
+  //           id: "payment-history",
+  //           label: "Payment History",
+  //           href: "/payments/history",
+  //           icon: Clock,
+  //         },
+  //         {
+  //           id: "refunds",
+  //           label: "Refunds",
+  //           href: "/payments/refunds",
+  //           icon: Minus,
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
 ];
 
 export default function Sidebar() {
