@@ -126,3 +126,16 @@
     @apply bg-background text-foreground;
   }
 }
+
+.advert-marquee {
+  animation: marquee 20s linear infinite;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}

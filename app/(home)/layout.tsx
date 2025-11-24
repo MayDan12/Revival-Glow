@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Header } from "@/components/header";
+import { Advert } from "@/components/advert";
 import { Footer } from "@/components/footer";
 import WhatsAppButton from "@/components/home/whatappbutton";
 
@@ -16,6 +17,7 @@ export default function HomeLayout({
 }>) {
   return (
     <section className="min-h-screen">
+      <Advert />
       <Header />
       <main>{children}</main>
       <Footer />

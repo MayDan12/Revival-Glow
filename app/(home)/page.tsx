@@ -8,6 +8,7 @@ import CarouselProducts from "@/components/home/carousel";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { ProductCarousel } from "@/components/product-carousel";
+import { Waitlist } from "@/components/home/waitlist";
 
 export default function HomePage() {
   return (
@@ -26,6 +27,7 @@ export default function HomePage() {
 
         <Faq />
       </div>
+      <Waitlist />
     </main>
   );
 }
