@@ -185,9 +185,9 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <TabsContent value="benefits" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-medium text-foreground mb-4">Key Benefits</h3>
+              <h3 className="font-medium text-foreground mb-2">Key Benefits</h3>
               {benefits.length > 0 ? (
-                <ul className="space-y-2">
+                <ul className="space-y-1">
                   {benefits.map((benefit, index) => (
                     <li
                       key={index}
@@ -210,11 +210,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <TabsContent value="ingredients" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-medium text-foreground mb-4">
+              <h3 className="font-medium text-foreground mb-2">
                 Key Ingredients
               </h3>
               {ingredients.length > 0 ? (
-                <div className="space-y-3">
+                <div className="space-y-1">
                   {ingredients.map((ingredient, index) => (
                     <div key={index} className="text-muted-foreground">
                       {ingredient.includes(":") ? (
@@ -244,7 +244,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <TabsContent value="usage" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-medium text-foreground mb-4">How to Use</h3>
+              <h3 className="font-medium text-foreground mb-2">How to Use</h3>
               <p className="text-muted-foreground leading-relaxed">
                 {howToUse}
               </p>

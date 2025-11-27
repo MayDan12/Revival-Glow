@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export function Waitlist() {
+export function Waitlist({ onSuccess }: { onSuccess?: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
@@ -31,6 +31,7 @@ export function Waitlist() {
       if (!res.ok) throw new Error(data?.error || "Failed to join waitlist");
       setStatus("You're on the list! We'll notify you soon.");
       toast.success("You're on the list! We'll notify you soon.");
+      if (onSuccess) onSuccess();
       setName("");
       setEmail("");
     } catch (err: any) {
@@ -41,7 +42,7 @@ export function Waitlist() {
   };
 
   return (
-    <section className="px-6 md:px-12 lg:px-24 py-12">
+    <section className="py-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

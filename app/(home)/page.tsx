@@ -9,10 +9,12 @@ import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { ProductCarousel } from "@/components/product-carousel";
 import { Waitlist } from "@/components/home/waitlist";
+import { WaitlistModal } from "@/components/home/waitlist-modal";
 
 export default function HomePage() {
   return (
     <main>
+      <WaitlistModal />
       <HeroSection />
       <CategorySection />
       <FeaturedProducts />
