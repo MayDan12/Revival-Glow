@@ -182,7 +182,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           <TabsTrigger value="usage">How to Use</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="benefits" className="mt-6">
+        <TabsContent value="benefits" className="mt-4">
           <Card>
             <CardContent className="p-6">
               <h3 className="font-medium text-foreground mb-2">Key Benefits</h3>
@@ -207,7 +207,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="ingredients" className="mt-6">
+        <TabsContent value="ingredients" className="mt-4">
           <Card>
             <CardContent className="p-6">
               <h3 className="font-medium text-foreground mb-2">
@@ -241,7 +241,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
           </Card>
         </TabsContent>
 
-        <TabsContent value="usage" className="mt-6">
+        <TabsContent value="usage" className="mt-4">
           <Card>
             <CardContent className="p-6">
               <h3 className="font-medium text-foreground mb-2">How to Use</h3>
