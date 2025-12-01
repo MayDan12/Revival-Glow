@@ -35,6 +35,8 @@ export function HeroSection() {
     return () => clearInterval(interval);
   }, []);
 
+  // Whata day
+
   return (
     <section className="relative min-h-[80vh] flex items-center justify-center bg-background overflow-hidden">
       <AnimatePresence mode="sync">
