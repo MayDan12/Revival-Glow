@@ -165,7 +165,7 @@ export default function PolicyPage() {
       </section>
 
       {/* Table of Contents */}
-      <section className="sticky top-20 bg-white border-b border-border z-10">
+      <section className="sticky top-25 bg-white border-b border-border z-10">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-4">
           <div className="flex flex-wrap gap-3">
             {sections.map((section) => (
