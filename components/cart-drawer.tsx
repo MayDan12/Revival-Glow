@@ -184,4 +184,3 @@ export function CartDrawer() {
     </Sheet>
   );
 }
-// What a day of fun
