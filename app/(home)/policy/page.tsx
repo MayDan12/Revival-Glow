@@ -163,6 +163,7 @@ export default function PolicyPage() {
           </motion.p>
         </div>
       </section>
+      {/* What a day */}
 
       {/* Table of Contents */}
       <section className="sticky top-25 bg-white border-b border-border z-10">
