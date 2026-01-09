@@ -6,33 +6,43 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { products } from "@/lib/products";
+import { useContents } from "@/hooks/useContents";
 
 export function ProductCarousel() {
+  const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [autoplay, setAutoplay] = useState(true);
+  const { fetchContents } = useContents();
+  const [contents, setContents] = useState<
+    { id: string; name: string; value: string | string[] }[]
+  >([]);
 
-  // Display 6 products in a rotating carousel
-  const displayProducts = products.slice(0, 6);
+  useEffect(() => {
+    setLoading(true);
+    fetchContents().then((data) => {
+      setContents(data);
+      setLoading(false);
+    });
+  }, []);
 
   useEffect(() => {
     if (!autoplay) return;
+    if (loading) return;
 
     const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % displayProducts.length);
+      setCurrentIndex((prev) => (prev + 1) % contents.length);
     }, 5000); // Change every 5 seconds
 
     return () => clearInterval(interval);
-  }, [autoplay, displayProducts.length]);
+  }, [autoplay, contents.length, loading]);
 
   const handlePrev = () => {
-    setCurrentIndex(
-      (prev) => (prev - 1 + displayProducts.length) % displayProducts.length
-    );
+    setCurrentIndex((prev) => (prev - 1 + contents.length) % contents.length);
     setAutoplay(false);
   };
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % displayProducts.length);
+    setCurrentIndex((prev) => (prev + 1) % contents.length);
     setAutoplay(false);
   };
 
@@ -40,14 +50,29 @@ export function ProductCarousel() {
   const getVisibleProducts = () => {
     const visible = [];
     for (let i = 0; i < 4; i++) {
-      visible.push(
-        displayProducts[(currentIndex + i) % displayProducts.length]
-      );
+      visible.push(contents[(currentIndex + i) % contents.length]);
     }
     return visible;
   };
 
+  if (contents.length === 0) return null;
+
   const visibleProducts = getVisibleProducts();
+
+  const getImageUrl = (value: string | string[]) => {
+    try {
+      if (Array.isArray(value)) return value[0];
+      // If it's a string that looks like a JSON array
+      if (typeof value === "string" && value.startsWith("[")) {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed[0] : value;
+      }
+      return value;
+    } catch (e) {
+      console.error("Error parsing image URL:", e);
+      return value;
+    }
+  };
 
   return (
     <section className="py-14 bg-primary/60">
@@ -69,6 +94,12 @@ export function ProductCarousel() {
           </p>
         </motion.div>
 
+        {loading && (
+          <div className="flex justify-center items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-50"></div>
+          </div>
+        )}
+
         {/* Carousel Container */}
         <div className="relative">
           {/* Products Grid */}
@@ -76,7 +107,7 @@ export function ProductCarousel() {
             <AnimatePresence mode="popLayout">
               {visibleProducts.map((product, index) => (
                 <motion.div
-                  key={`${product.id}-${currentIndex}`}
+                  key={`${index}-${currentIndex}`}
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.9 }}
@@ -85,56 +116,54 @@ export function ProductCarousel() {
                   onMouseLeave={() => setAutoplay(true)}
                   className="group"
                 >
-                  <Link href={`/products/${product.id}`}>
-                    <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
-                      {/* Image Container */}
-                      <div className="relative aspect-square overflow-hidden bg-secondary/10">
-                        <motion.img
-                          src={product.images?.[0] || "/placeholder.svg"}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.1 }}
-                          transition={{ duration: 0.4 }}
-                        />
-                        {/* Badge */}
-                        {product.isNew && (
-                          <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-medium">
-                            New
-                          </div>
-                        )}
-                        {product.isBestseller && !product.isNew && (
+                  <div className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-shadow duration-300 h-full flex flex-col">
+                    {/* Image Container */}
+                    <div className="relative aspect-square overflow-hidden bg-secondary/10">
+                      <motion.img
+                        src={getImageUrl(product.value) || "/placeholder.svg"}
+                        alt={product.name}
+                        className="w-full h-full object-cover"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ duration: 0.4 }}
+                      />
+                      {/* Badge */}
+
+                      <div className="absolute top-3 right-3 bg-amber-600 text-white px-3 py-1 rounded-full text-xs font-medium">
+                        New
+                      </div>
+
+                      {/* {product.isBestseller && !product.isNew && (
                           <div className="absolute top-3 right-3 bg-amber-700 text-white px-3 py-1 rounded-full text-xs font-medium">
                             Bestseller
                           </div>
-                        )}
-                      </div>
+                        )} */}
+                    </div>
 
-                      {/* Content */}
-                      <div className="p-3 flex-1 flex flex-col justify-between">
-                        <div>
-                          <h3 className="text-lg font-medium text-foreground mb-1 group-hover:text-amber-600 transition-colors">
-                            {product.name}
-                          </h3>
-                          <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
+                    {/* Content */}
+                    <div className="p-3 flex-1 flex flex-col justify-between">
+                      <div>
+                        {/* <h3 className="text-lg font-medium text-foreground mb-1 group-hover:text-amber-600 transition-colors">
+                          {product.name}
+                        </h3> */}
+                        {/* <p className="text-sm text-muted-foreground line-clamp-2 mb-1">
                             {product.description}
-                          </p>
-                          {/* Rating */}
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="flex text-amber-500">
-                              {[...Array(5)].map((_, i) => (
-                                <span key={i} className="text-sm">
-                                  {i < Math.floor(product.rating) ? "★" : "☆"}
-                                </span>
-                              ))}
-                            </div>
-                            <span className="text-xs text-muted-foreground">
-                              ({product.reviewCount})
-                            </span>
+                          </p> */}
+                        {/* Rating */}
+                        <div className="flex items-center gap-2 mb-4">
+                          <div className="flex text-amber-500">
+                            {[...Array(5)].map((_, i) => (
+                              <span key={i} className="text-sm">
+                                {i < Math.floor(5) ? "★" : "☆"}
+                              </span>
+                            ))}
                           </div>
+                          <span className="text-xs text-muted-foreground">
+                            ({25})
+                          </span>
                         </div>
                       </div>
                     </div>
-                  </Link>
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
@@ -152,7 +181,7 @@ export function ProductCarousel() {
 
             {/* Dots Indicator */}
             <div className="flex gap-2">
-              {displayProducts.map((_, index) => (
+              {visibleProducts.map((_, index) => (
                 <motion.button
                   key={index}
                   onClick={() => {
