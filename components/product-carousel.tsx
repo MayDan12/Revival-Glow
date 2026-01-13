@@ -17,6 +17,7 @@ export function ProductCarousel() {
     { id: string; name: string; value: string | string[] }[]
   >([]);
 
+  // What is that comoor now
   useEffect(() => {
     setLoading(true);
     fetchContents().then((data) => {
