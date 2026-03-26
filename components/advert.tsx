@@ -1,9 +1,11 @@
 "use client";
 import { motion } from "framer-motion";
+import { useCurrency } from "@/contexts/currency-context";
 
 export function Advert() {
+  const { formatPrice } = useCurrency();
   const messages = [
-    "Free shipping on orders over $50",
+    `Free shipping on orders over ${formatPrice(50)}`,
     "New arrivals in store",
     "Holiday sale up to 30%",
   ];

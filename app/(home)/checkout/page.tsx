@@ -6,11 +6,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export default function CheckoutPage() {
   const { state, dispatch } = useCart();
+  const { currentCurrency, formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,10 +53,12 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             items: state.items,
             userData: formData,
-            // Send calculated totals to ensure consistency
-            totalAmounbtt: total,
+            // Send currency and rate for consistency
+            currencyCode: currentCurrency.code,
+            rate: currentCurrency.rate,
+            totalAmount: total,
           }),
-        }
+        },
       );
 
       const data = await res.json();
@@ -253,7 +257,7 @@ export default function CheckoutPage() {
                         {item.name} x {item.quantity}
                       </span>
                       <span className="font-medium">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {formatPrice(item.price * item.quantity)}
                       </span>
                     </motion.div>
                   ))}
@@ -262,20 +266,20 @@ export default function CheckoutPage() {
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>{formatPrice(subtotal)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>{`$${shipping.toFixed(2)}`}</span>
+                    <span>{formatPrice(shipping)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax</span>
-                    <span>${tax.toFixed(2)}</span>
+                    <span>{formatPrice(tax)}</span>
                   </div>
                   <div className="border-t pt-2 flex justify-between">
                     <span className="font-medium">Total</span>
                     <span className="font-medium text-lg">
-                      ${total.toFixed(2)}
+                      {formatPrice(total)}
                     </span>
                   </div>
                 </div>

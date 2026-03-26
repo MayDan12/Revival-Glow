@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { ShoppingBag, Minus, Plus, X } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 export function CartDrawer() {
   const { state, dispatch } = useCart();
+  const { formatPrice } = useCurrency();
   const [isOpen, setIsOpen] = useState(false);
 
   const updateQuantity = (id: number, quantity: number) => {
@@ -95,7 +97,7 @@ export function CartDrawer() {
                       <div className="flex-1">
                         <h3 className="font-medium text-sm">{item.name}</h3>
                         <p className="text-sm text-muted-foreground">
-                          ${item.price}
+                          {formatPrice(item.price)}
                         </p>
 
                         <div className="flex items-center gap-2 mt-2">
@@ -138,7 +140,7 @@ export function CartDrawer() {
                         </Button>
 
                         <p className="font-medium text-sm">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          {formatPrice(item.price * item.quantity)}
                         </p>
                       </div>
                     </motion.div>
@@ -155,7 +157,7 @@ export function CartDrawer() {
                 <div className="flex justify-between items-center">
                   <span className="font-medium">Total:</span>
                   <span className="font-medium text-lg">
-                    ${state.total.toFixed(2)}
+                    {formatPrice(state.total)}
                   </span>
                 </div>
 

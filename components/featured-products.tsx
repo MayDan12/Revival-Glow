@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { easeOut, motion } from "framer-motion";
 import { useProduct } from "@/hooks/useProduct";
 import { Product } from "@/types/product";
@@ -98,6 +99,7 @@ export function FeaturedProducts() {
 
 function FeaturedProduct({ product }: { product: Product }) {
   const { dispatch } = useCart();
+  const { formatPrice } = useCurrency();
 
   const addToCart = () => {
     dispatch({
@@ -136,7 +138,7 @@ function FeaturedProduct({ product }: { product: Product }) {
           </p>
           <div className="flex items-center justify-between">
             <span className=" font-medium text-foreground">
-              ${product.price}
+              {formatPrice(product.price)}
             </span>
             <Button
               size="sm"

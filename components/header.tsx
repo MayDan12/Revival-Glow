@@ -123,6 +123,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X, ShoppingCart } from "lucide-react";
 import { CartDrawer } from "./cart-drawer";
+import { CurrencySelector } from "./currency-selector";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -234,6 +235,13 @@ export function Header() {
                 Contact
               </Link>
             </div>
+
+            <div className="pt-6 border-t border-border">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-4">
+                Region & Currency
+              </p>
+              <CurrencySelector />
+            </div>
           </motion.nav>
         </motion.div>
       )}
@@ -292,6 +300,9 @@ export function Header() {
             </nav>
 
             <div className="flex items-center space-x-4">
+              <div className="hidden md:block">
+                <CurrencySelector />
+              </div>
               {/* desktop cart */}
               <div className="">
                 <CartDrawer />

@@ -224,8 +224,7 @@ export default function SuccessPage() {
                 Order Total
               </p>
               <p className="text-3xl font-bold text-foreground">
-                {formatCurrency(order.total_amount)}
-                {/* {order.total_amount ? order.total_amount.toFixed(2) : "0.00"} */}
+                {formatCurrency(order.total_amount, true, order.currency)}
               </p>
             </div>
             <div>

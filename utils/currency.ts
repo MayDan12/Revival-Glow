@@ -1,10 +1,14 @@
 // utils/currency.ts
-export const formatCurrency = (amount: number, isCents: boolean = true) => {
+export const formatCurrency = (
+  amount: number,
+  isCents: boolean = true,
+  currencyCode: string = "USD"
+) => {
   const amountInDollars = isCents ? amount / 100 : amount;
 
   return new Intl.NumberFormat("en-US", {
     style: "currency",
-    currency: "USD",
+    currency: currencyCode,
   }).format(amountInDollars);
 };
 

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Star, ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { useState } from "react";
 import { Product } from "@/types/product";
 
@@ -31,6 +32,7 @@ const item = {
 
 export function RelatedProducts({ products }: RelatedProductsProps) {
   const { dispatch } = useCart();
+  const { formatPrice } = useCurrency();
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
 
   const handleAddToCart = (product: Product) => {
@@ -158,11 +160,11 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
                     <div className="mt-auto">
                       <div className="flex items-center gap-2">
                         <span className="text-lg font-semibold text-foreground">
-                          ${product.price}
+                          {formatPrice(product.price)}
                         </span>
                         {product.originalPrice && (
                           <span className="text-sm text-muted-foreground line-through">
-                            ${product.originalPrice}
+                            {formatPrice(product.originalPrice)}
                           </span>
                         )}
                       </div>

@@ -342,6 +342,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface ProductFiltersProps {
   onFiltersChange: (filters: any) => void;
@@ -352,15 +353,17 @@ export function ProductFilters({
   onFiltersChange,
   initialFilters,
 }: ProductFiltersProps) {
+  const { formatPrice } = useCurrency();
+
   // Initialize state with values from parent or defaults
   const [priceRange, setPriceRange] = useState(
-    initialFilters?.priceRange || [0, 200]
+    initialFilters?.priceRange || [0, 200],
   );
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    initialFilters?.categories || []
+    initialFilters?.categories || [],
   );
   const [selectedSkinTypes, setSelectedSkinTypes] = useState<string[]>(
-    initialFilters?.skinTypes || []
+    initialFilters?.skinTypes || [],
   );
 
   const categories = [
@@ -447,8 +450,9 @@ export function ProductFilters({
 
         {/* Price Range */}
         <div className="mb-8">
-          <Label className="text-sm font-medium mb-4 block">
-            Price Range: ${priceRange[0]} - ${priceRange[1]}
+          <Label className="text-sm font-medium mb-4 block font-serif">
+            Price Range: {formatPrice(priceRange[0])} -{" "}
+            {formatPrice(priceRange[1])}
           </Label>
           <Slider
             value={priceRange}

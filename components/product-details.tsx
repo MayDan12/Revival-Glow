@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
 
 interface Product {
@@ -34,6 +35,7 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const [quantity, setQuantity] = useState(1);
   const [isFavorite, setIsFavorite] = useState(false);
   const { dispatch } = useCart();
+  const { formatPrice } = useCurrency();
 
   const increaseQuantity = () => setQuantity((prev) => prev + 1);
   const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
@@ -78,11 +80,11 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         <div className="flex items-center gap-4 mb-4">
           <div className="flex items-center gap-2">
             <span className="text-2xl font-medium text-foreground">
-              ${product.price}
+              {formatPrice(product.price)}
             </span>
             {product.original_price && (
               <span className="text-lg text-muted-foreground line-through">
-                ${product.original_price}
+                {formatPrice(product.original_price)}
               </span>
             )}
           </div>

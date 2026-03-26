@@ -8,26 +8,35 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
 
   try {
-    const { items, userData, total } = await req.json();
+    const { items, userData, total, currencyCode, rate = 1 } = await req.json();
+
+    const currency = currencyCode?.toLowerCase() || "cad";
 
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
       `${req.nextUrl.protocol}//${req.nextUrl.host}`;
 
-    const calculatedTotal = items.reduce((sum: number, item: any) => {
+    // Base amounts in CAD
+    const baseSubtotal = items.reduce((sum: number, item: any) => {
       return sum + item.price * item.quantity;
     }, 0);
 
-    const calculatedTax = calculatedTotal * 0.08;
-    const calculatedShipping = 10.0;
-    const expectedTotal = calculatedTotal + calculatedTax + calculatedShipping;
+    const baseTax = baseSubtotal * 0.08;
+    const baseShipping = 10.0;
+    const baseTotal = baseSubtotal + baseTax + baseShipping;
+
+    // Converted amounts for Stripe
+    const convertedSubtotal = baseSubtotal * rate;
+    const convertedTax = baseTax * rate;
+    const convertedShipping = baseShipping * rate;
+    const expectedTotal = baseTotal * rate;
 
     // Log for debugging
     console.log("Total verification:", {
       receivedTotal: total,
-      calculatedTotal,
-      calculatedTax,
-      calculatedShipping,
+      currency,
+      rate,
+      baseTotal,
       expectedTotal,
     });
 
@@ -35,31 +44,31 @@ export async function POST(req: NextRequest) {
     const line_items = [
       {
         price_data: {
-          currency: "usd",
+          currency: currency,
           product_data: {
             name: "Order Subtotal",
           },
-          unit_amount: Math.round(calculatedTotal * 100), // Convert to cents
+          unit_amount: Math.round(convertedSubtotal * 100), // Convert to cents
         },
         quantity: 1,
       },
       {
         price_data: {
-          currency: "usd",
+          currency: currency,
           product_data: {
             name: "Tax",
           },
-          unit_amount: Math.round(calculatedTax * 100), // Convert to cents
+          unit_amount: Math.round(convertedTax * 100), // Convert to cents
         },
         quantity: 1,
       },
       {
         price_data: {
-          currency: "usd",
+          currency: currency,
           product_data: {
             name: "Shipping",
           },
-          unit_amount: Math.round(calculatedShipping * 100), // Convert to cents
+          unit_amount: Math.round(convertedShipping * 100), // Convert to cents
         },
         quantity: 1,
       },
@@ -101,9 +110,10 @@ export async function POST(req: NextRequest) {
           postal_code: userData.zipCode,
           country: userData.country,
           total_amount: totalAmountInCents, // ✅ Now storing in cents
-          subtotal: Math.round(calculatedTotal * 100), // ✅ Store in cents
-          tax: Math.round(calculatedTax * 100), // ✅ Store in cents
-          shipping: Math.round(calculatedShipping * 100), // ✅ Store in cents
+          subtotal: Math.round(convertedSubtotal * 100), // ✅ Store in cents
+          tax: Math.round(convertedTax * 100), // ✅ Store in cents
+          shipping: Math.round(convertedShipping * 100), // ✅ Store in cents
+          currency: currency.toUpperCase(), // Store the currency code
           payment_status: "pending",
           stripe_session_id: session.id,
           order_status: "pending",
@@ -118,7 +128,7 @@ export async function POST(req: NextRequest) {
       console.error("❌ Supabase insert error:", error);
       return NextResponse.json(
         { error: "Failed to save order to database" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -136,8 +146,8 @@ export async function POST(req: NextRequest) {
       product_id: item.id,
       product_name: item.name,
       quantity: item.quantity,
-      price: Math.round(item.price * 100), // ✅ Store in cents
-      subtotal: Math.round(item.price * item.quantity * 100), // ✅ Store in cents
+      price: Math.round(item.price * rate * 100), // Store in cents in target currency
+      subtotal: Math.round(item.price * item.quantity * rate * 100), // Store in cents in target currency
     }));
 
     const { error: itemsError } = await supabase
@@ -163,7 +173,7 @@ export async function POST(req: NextRequest) {
     console.error("❌ Stripe Checkout Error:", error);
     return NextResponse.json(
       { error: error.message || "Internal server error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

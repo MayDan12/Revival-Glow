@@ -5,11 +5,13 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 
 export default function CartPage() {
   const { state, dispatch } = useCart();
+  const { formatPrice } = useCurrency();
 
   const updateQuantity = (id: number, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
@@ -103,11 +105,11 @@ export default function CartPage() {
                           {item.name}
                         </h3>
                         <p className="text-muted-foreground text-sm">
-                          ${item.price} each
+                          {formatPrice(item.price)} each
                         </p>
                         <div className="md:hidden flex items-center justify-between mb-2">
                           <p className=" font-medium text-foreground">
-                            ${(item.price * item.quantity).toFixed(2)}
+                            {formatPrice(item.price * item.quantity)}
                           </p>
                         </div>
 
@@ -152,7 +154,7 @@ export default function CartPage() {
 
                       <div className="hidden md:flex flex-col items-end justify-between">
                         <p className=" font-medium text-foreground">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          {formatPrice(item.price * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -175,7 +177,7 @@ export default function CartPage() {
                         Subtotal ({state.itemCount} items)
                       </span>
                       <span className="font-medium">
-                        ${state.total.toFixed(2)}
+                        {formatPrice(state.total)}
                       </span>
                     </div>
 
@@ -187,7 +189,7 @@ export default function CartPage() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Tax</span>
                       <span className="font-medium">
-                        ${(state.total * 0.08).toFixed(2)}
+                        {formatPrice(state.total * 0.08)}
                       </span>
                     </div>
 
@@ -195,7 +197,7 @@ export default function CartPage() {
                       <div className="flex justify-between">
                         <span className="text-lg font-medium">Total</span>
                         <span className="text-lg font-medium">
-                          ${(state.total * 1.08).toFixed(2)}
+                          {formatPrice(state.total * 1.08)}
                         </span>
                       </div>
                     </div>

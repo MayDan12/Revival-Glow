@@ -330,6 +330,7 @@ import {
 import Link from "next/link";
 import { Heart, ShoppingCart, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCart } from "@/contexts/cart-context";
+import { useCurrency } from "@/contexts/currency-context";
 
 interface ProductGridProps {
   products: any[];
@@ -357,6 +358,7 @@ export function ProductGrid({
   const [favorites, setFavorites] = useState<number[]>([]);
   const [quantities, setQuantities] = useState<{ [key: number]: number }>({});
   const { dispatch } = useCart();
+  const { formatPrice } = useCurrency();
 
   const addToCart = (product: any) => {
     const quantity = quantities[product.id] || 1;
@@ -390,7 +392,7 @@ export function ProductGrid({
     setFavorites((prev) =>
       prev.includes(productId)
         ? prev.filter((id) => id !== productId)
-        : [...prev, productId]
+        : [...prev, productId],
     );
   };
 
@@ -552,11 +554,11 @@ export function ProductGrid({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="md:text-lg font-medium text-foreground">
-                      ${product.price}
+                      {formatPrice(product.price)}
                     </span>
                     {product.original_price && (
                       <span className="text-sm text-muted-foreground line-through">
-                        ${product.original_price}
+                        {formatPrice(product.original_price)}
                       </span>
                     )}
                   </div>
