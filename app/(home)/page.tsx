@@ -16,7 +16,7 @@ export default function HomePage() {
     <main>
       <WaitlistModal />
       <HeroSection />
-      <CategorySection />
+      {/* <CategorySection /> */}
       <FeaturedProducts />
 
       {/* <CarouselProducts /> */}

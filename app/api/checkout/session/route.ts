@@ -8,9 +8,26 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient();
 
   try {
-    const { items, userData, total, currencyCode, rate = 1 } = await req.json();
+    const body = await req.json();
+    const {
+      items,
+      userData,
+      currencyCode,
+      rate,
+      totalAmount,
+      total: legacyTotal,
+    } = body;
 
-    const currency = currencyCode?.toLowerCase() || "cad";
+    const requestedCurrency =
+      typeof currencyCode === "string" ? currencyCode.toLowerCase() : "cad";
+    const requestedRate =
+      typeof rate === "number" && Number.isFinite(rate) ? rate : 1;
+    const paymentCurrency =
+      requestedCurrency === "cad" || requestedCurrency === "usd"
+        ? requestedCurrency
+        : "cad";
+    const paymentRate =
+      paymentCurrency === requestedCurrency ? requestedRate : 1;
 
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
@@ -26,16 +43,18 @@ export async function POST(req: NextRequest) {
     const baseTotal = baseSubtotal + baseTax + baseShipping;
 
     // Converted amounts for Stripe
-    const convertedSubtotal = baseSubtotal * rate;
-    const convertedTax = baseTax * rate;
-    const convertedShipping = baseShipping * rate;
-    const expectedTotal = baseTotal * rate;
+    const convertedSubtotal = baseSubtotal * paymentRate;
+    const convertedTax = baseTax * paymentRate;
+    const convertedShipping = baseShipping * paymentRate;
+    const expectedTotal = baseTotal * paymentRate;
 
     // Log for debugging
     console.log("Total verification:", {
-      receivedTotal: total,
-      currency,
-      rate,
+      receivedTotal: totalAmount ?? legacyTotal,
+      requestedCurrency,
+      requestedRate,
+      paymentCurrency,
+      paymentRate,
       baseTotal,
       expectedTotal,
     });
@@ -44,7 +63,7 @@ export async function POST(req: NextRequest) {
     const line_items = [
       {
         price_data: {
-          currency: currency,
+          currency: paymentCurrency,
           product_data: {
             name: "Order Subtotal",
           },
@@ -54,7 +73,7 @@ export async function POST(req: NextRequest) {
       },
       {
         price_data: {
-          currency: currency,
+          currency: paymentCurrency,
           product_data: {
             name: "Tax",
           },
@@ -64,7 +83,7 @@ export async function POST(req: NextRequest) {
       },
       {
         price_data: {
-          currency: currency,
+          currency: paymentCurrency,
           product_data: {
             name: "Shipping",
           },
@@ -113,7 +132,7 @@ export async function POST(req: NextRequest) {
           subtotal: Math.round(convertedSubtotal * 100), // ✅ Store in cents
           tax: Math.round(convertedTax * 100), // ✅ Store in cents
           shipping: Math.round(convertedShipping * 100), // ✅ Store in cents
-          currency: currency.toUpperCase(), // Store the currency code
+          currency: paymentCurrency.toUpperCase(), // Store the currency code
           payment_status: "pending",
           stripe_session_id: session.id,
           order_status: "pending",
@@ -146,8 +165,8 @@ export async function POST(req: NextRequest) {
       product_id: item.id,
       product_name: item.name,
       quantity: item.quantity,
-      price: Math.round(item.price * rate * 100), // Store in cents in target currency
-      subtotal: Math.round(item.price * item.quantity * rate * 100), // Store in cents in target currency
+      price: Math.round(item.price * paymentRate * 100), // Store in cents in target currency
+      subtotal: Math.round(item.price * item.quantity * paymentRate * 100), // Store in cents in target currency
     }));
 
     const { error: itemsError } = await supabase

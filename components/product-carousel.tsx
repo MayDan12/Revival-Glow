@@ -22,6 +22,7 @@ export function ProductCarousel() {
     setLoading(true);
     fetchContents().then((data) => {
       setContents(data);
+      console.log(data);
       setLoading(false);
     });
   }, []);
