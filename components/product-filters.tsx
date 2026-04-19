@@ -366,23 +366,25 @@ export function ProductFilters({
     initialFilters?.skinTypes || [],
   );
 
-  const categories = [
-    "Cleansers",
-    "Serums",
-    "Moisturizers",
-    "Masks",
-    "Sunscreen",
-    "Eye Care",
-  ];
+  const categories = [""];
+  // const categories = [
+  //   "Cleansers",
+  //   "Serums",
+  //   "Moisturizers",
+  //   "Masks",
+  //   "Sunscreen",
+  //   "Eye Care",
+  // ];
 
-  const skinTypes = [
-    "All Skin Types",
-    "Dry Skin",
-    "Oily Skin",
-    "Combination",
-    "Sensitive",
-    "Mature",
-  ];
+  const skinTypes = [""];
+  // const skinTypes = [
+  //   "All Skin Types",
+  //   "Dry Skin",
+  //   "Oily Skin",
+  //   "Combination",
+  //   "Sensitive",
+  //   "Mature",
+  // ];
 
   // Sync with parent when initialFilters change
   useEffect(() => {
@@ -463,8 +465,9 @@ export function ProductFilters({
             className="w-full"
           />
         </div>
-        <div className="flex md:flex-col gap-8 md:gap-0">
-          {/* Categories */}
+        {/* Categories */}
+        {/* Skin Types */}
+        {/* <div className="flex md:flex-col gap-8 md:gap-0">
           <div className="mb-8">
             <Label className="text-sm font-medium mb-4 block">Category</Label>
             <div className="space-y-3">
@@ -489,7 +492,6 @@ export function ProductFilters({
             </div>
           </div>
 
-          {/* Skin Types */}
           <div>
             <Label className="text-sm font-medium mb-4 block">Skin Type</Label>
             <div className="space-y-3">
@@ -513,7 +515,7 @@ export function ProductFilters({
               ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );
