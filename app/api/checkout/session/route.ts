@@ -29,17 +29,106 @@ export async function POST(req: NextRequest) {
     const paymentRate =
       paymentCurrency === requestedCurrency ? requestedRate : 1;
 
+    const normalizeZoneCode = (country: unknown): "CA" | "US" | "INTL" => {
+      if (typeof country !== "string") return "CA";
+      const value = country.trim().toLowerCase();
+      if (value === "ca" || value === "canada" || value.includes("canada")) {
+        return "CA";
+      }
+      if (
+        value === "us" ||
+        value === "usa" ||
+        value === "united states" ||
+        value.includes("united states")
+      ) {
+        return "US";
+      }
+      return "INTL";
+    };
+
+    const safeItems = Array.isArray(items) ? items : [];
+
+    const missingWeightProductIds = Array.from(
+      new Set(
+        safeItems
+          .filter(
+            (item: any) =>
+              !(
+                typeof item?.weight === "number" && Number.isFinite(item.weight)
+              ),
+          )
+          .map((item: any) => item?.id)
+          .filter((id: any) => typeof id === "number" && Number.isFinite(id)),
+      ),
+    );
+
+    const weightsById = new Map<number, number>();
+    if (missingWeightProductIds.length > 0) {
+      const { data: productsForWeight } = await supabase
+        .from("products")
+        .select("id, weight")
+        .in("id", missingWeightProductIds);
+
+      (productsForWeight || []).forEach((p: any) => {
+        if (typeof p?.id === "number" && typeof p?.weight === "number") {
+          weightsById.set(p.id, p.weight);
+        }
+      });
+    }
+
+    const totalWeightKg = safeItems.reduce((sum: number, item: any) => {
+      const quantity =
+        typeof item?.quantity === "number" && Number.isFinite(item.quantity)
+          ? item.quantity
+          : 1;
+      const weight =
+        typeof item?.weight === "number" && Number.isFinite(item.weight)
+          ? item.weight
+          : (weightsById.get(item?.id) ?? 0);
+      return sum + weight * quantity;
+    }, 0);
+
+    const zoneCode = normalizeZoneCode(userData?.country);
+    let baseShipping = 0;
+    const { data: shippingRates, error: shippingRatesError } = await supabase
+      .from("shipping_rates")
+      .select("max_weight, price")
+      .eq("zone_code", zoneCode)
+      .order("max_weight", { ascending: true });
+
+    if (shippingRatesError) {
+      console.error("Shipping rates error:", shippingRatesError);
+    } else if ((shippingRates || []).length > 0) {
+      const parsedRates = (shippingRates || [])
+        .map((r: any) => ({
+          maxWeight:
+            typeof r?.max_weight === "number"
+              ? r.max_weight
+              : Number.parseFloat(String(r?.max_weight)),
+          price:
+            typeof r?.price === "number"
+              ? r.price
+              : Number.parseFloat(String(r?.price)),
+        }))
+        .filter((r) => Number.isFinite(r.maxWeight) && Number.isFinite(r.price))
+        .sort((a, b) => a.maxWeight - b.maxWeight);
+
+      const matched =
+        parsedRates.find((r) => totalWeightKg <= r.maxWeight) ||
+        parsedRates[parsedRates.length - 1];
+      baseShipping = matched?.price ?? 0;
+    }
+
     const baseUrl =
       process.env.NEXT_PUBLIC_BASE_URL ||
       `${req.nextUrl.protocol}//${req.nextUrl.host}`;
 
     // Base amounts in CAD
-    const baseSubtotal = items.reduce((sum: number, item: any) => {
+    const baseSubtotal = safeItems.reduce((sum: number, item: any) => {
       return sum + item.price * item.quantity;
     }, 0);
 
     const baseTax = baseSubtotal * 0.08;
-    const baseShipping = 10.0;
     const baseTotal = baseSubtotal + baseTax + baseShipping;
 
     // Converted amounts for Stripe
@@ -55,6 +144,8 @@ export async function POST(req: NextRequest) {
       requestedRate,
       paymentCurrency,
       paymentRate,
+      zoneCode,
+      totalWeightKg,
       baseTotal,
       expectedTotal,
     });
@@ -136,7 +227,7 @@ export async function POST(req: NextRequest) {
           payment_status: "pending",
           stripe_session_id: session.id,
           order_status: "pending",
-          items: items,
+          items: safeItems,
           created_at: new Date().toISOString(),
         },
       ])
@@ -160,7 +251,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Store order items (also in cents for consistency)
-    const orderItems = items.map((item: any) => ({
+    const orderItems = safeItems.map((item: any) => ({
       order_id: order.id,
       product_id: item.id,
       product_name: item.name,

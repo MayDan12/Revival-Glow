@@ -369,6 +369,10 @@ export function ProductGrid({
         id: product.id,
         name: product.name,
         price: product.price,
+        weight:
+          typeof product.weight === "number" && Number.isFinite(product.weight)
+            ? product.weight
+            : 0,
         image: product.images ? product.images[0] : product.image,
         quantity: quantity,
       },
