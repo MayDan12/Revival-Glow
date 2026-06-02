@@ -168,6 +168,7 @@ interface CartItem {
   id: number;
   name: string;
   price: number;
+  weight: number;
   image: string;
   quantity: number;
 }
@@ -298,7 +299,26 @@ function cartReducer(state: CartState, action: CartAction): CartState {
     }
 
     case "LOAD_CART": {
-      newState = action.payload;
+      const normalizedItems = (action.payload.items || []).map((item) => ({
+        ...item,
+        weight:
+          typeof item.weight === "number" && Number.isFinite(item.weight)
+            ? item.weight
+            : 0,
+        quantity:
+          typeof item.quantity === "number" && Number.isFinite(item.quantity)
+            ? item.quantity
+            : 1,
+      }));
+
+      newState = {
+        items: normalizedItems,
+        total: normalizedItems.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0,
+        ),
+        itemCount: normalizedItems.reduce((sum, item) => sum + item.quantity, 0),
+      };
       break;
     }
 

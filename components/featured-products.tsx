@@ -108,6 +108,7 @@ function FeaturedProduct({ product }: { product: Product }) {
         id: product.id,
         name: product.name,
         price: product.price,
+        weight: product.weight,
         image: product.images ? product.images[0] : product.images,
       },
     });

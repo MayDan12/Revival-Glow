@@ -33,9 +33,9 @@ export function CartDrawer() {
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetTrigger asChild>
         <Button
-          variant="ghost"
+          variant="outline"
           size="sm"
-          className="relative font-serif hover:bg-primary"
+          className="relative font-serif hover:bg-primary "
         >
           <ShoppingBag className="h-4 w-4 mr-2" />
           Cart

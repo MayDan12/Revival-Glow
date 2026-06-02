@@ -42,6 +42,7 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
         id: product.id,
         name: product.name,
         price: product.price,
+        weight: product.weight,
         image: product.images[0],
         quantity: 1,
       },
