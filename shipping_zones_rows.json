@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "code": "CA",
+    "name": "Canada",
+    "created_at": "2026-05-20 14:50:22.578559+00"
+  },
+  {
+    "id": 2,
+    "code": "US",
+    "name": "United States",
+    "created_at": "2026-05-20 14:50:22.578559+00"
+  },
+  {
+    "id": 3,
+    "code": "INTL",
+    "name": "International",
+    "created_at": "2026-05-20 14:50:22.578559+00"
+  }
+]

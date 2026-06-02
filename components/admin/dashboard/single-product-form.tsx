@@ -46,6 +46,7 @@ const initialProductState: Product = {
   id: 0,
   name: "",
   price: 0,
+  weight: 0,
   originalPrice: null,
   images: [],
   category: "",
@@ -190,7 +191,7 @@ export function SingleProductForm() {
         if (uploadError) {
           console.error("Upload error:", uploadError);
           throw new Error(
-            `Failed to upload ${file.name}: ${uploadError.message}`
+            `Failed to upload ${file.name}: ${uploadError.message}`,
           );
         }
 
@@ -228,7 +229,7 @@ export function SingleProductForm() {
   // Alternative approach: Upload with fetch for real progress tracking
   const uploadWithProgress = async (
     file: File,
-    index: number
+    index: number,
   ): Promise<string> => {
     const fileExt = file.name.split(".").pop();
     const fileName = `${Math.random()
@@ -290,7 +291,7 @@ export function SingleProductForm() {
       for (const imageFile of imageFiles) {
         const publicUrl = await uploadWithProgress(
           imageFile.file,
-          imageFile.index
+          imageFile.index,
         );
         uploadedUrls.push(publicUrl);
 
@@ -313,7 +314,7 @@ export function SingleProductForm() {
   const handleInputChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -342,7 +343,7 @@ export function SingleProductForm() {
   const handleArrayFieldChange = (
     field: "ingredients" | "benefits",
     index: number,
-    value: string
+    value: string,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -361,7 +362,7 @@ export function SingleProductForm() {
   // Remove item from array field
   const removeArrayFieldItem = (
     field: "ingredients" | "benefits",
-    index: number
+    index: number,
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -392,6 +393,10 @@ export function SingleProductForm() {
     }
     if (imageFiles.length === 0) {
       setStatus({ type: "error", message: "At least one image is required" });
+      return false;
+    }
+    if (!formData.weight || formData.weight <= 0) {
+      setStatus({ type: "error", message: "Valid weight is required" });
       return false;
     }
     if (formData.stock_quantity < 0) {
@@ -434,9 +439,11 @@ export function SingleProductForm() {
         benefits: formData.benefits.filter((ben) => ben.trim() !== ""),
       };
 
+      // Add weight field to productData object being sent to Supabase
       const productData = {
         name: cleanFormData.name.trim(),
         price: cleanFormData.price,
+        weight: cleanFormData.weight,
         original_price: cleanFormData.originalPrice,
         images: cleanFormData.images,
         category: cleanFormData.category,
@@ -529,7 +536,7 @@ export function SingleProductForm() {
               />
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="stock_quantity">Stock *</Label>
                 <Input
@@ -539,9 +546,25 @@ export function SingleProductForm() {
                   value={formData.stock_quantity}
                   onChange={handleInputChange}
                   placeholder="0"
+                  className=" mt-1  border-accent-foreground/40"
+                />
+              </div>
+              <div>
+                <Label htmlFor="weight">Weight (kg)</Label>
+                <Input
+                  id="weight"
+                  name="weight"
+                  type="number"
+                  step="0.01"
+                  value={formData.weight}
+                  onChange={handleInputChange}
+                  placeholder="0.00"
                   className="mt-1 border-accent-foreground/40"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="price">Price ($) *</Label>
                 <Input
@@ -904,8 +927,8 @@ export function SingleProductForm() {
           {isUploading
             ? "Uploading Images..."
             : isLoading
-            ? "Adding Product..."
-            : "Add Product"}
+              ? "Adding Product..."
+              : "Add Product"}
         </Button>
         <Button
           type="button"

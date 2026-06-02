@@ -3,6 +3,7 @@ export type Product = {
   id: number;
   name: string;
   price: number;
+  weight: number;
   originalPrice: number | null;
   images: string[];
   category: string;
@@ -35,8 +36,9 @@ export type DatabaseProduct = {
 };
 
 // Extended Database Product (with all fields from both)
-type CompleteDatabaseProduct = {
+export type CompleteDatabaseProduct = {
   id: string;
   name: string;
   price: number;
+  weight: number;
 };

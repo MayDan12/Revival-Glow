@@ -1,17 +1,114 @@
 "use client";
 
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
 import { useCurrency } from "@/contexts/currency-context";
+import { supabase } from "@/utils/supabase/client";
 import { Minus, Plus, X, ShoppingBag } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
 export default function CartPage() {
   const { state, dispatch } = useCart();
   const { formatPrice } = useCurrency();
+  const [country, setCountry] = useState("Canada");
+  const [shipping, setShipping] = useState<number>(0);
+
+  const normalizeZoneCode = (value: string): "CA" | "US" | "INTL" => {
+    const normalized = value.trim().toLowerCase();
+    if (
+      normalized === "ca" ||
+      normalized === "canada" ||
+      normalized.includes("canada")
+    ) {
+      return "CA";
+    }
+    if (
+      normalized === "us" ||
+      normalized === "usa" ||
+      normalized === "united states" ||
+      normalized.includes("united states")
+    ) {
+      return "US";
+    }
+    return "INTL";
+  };
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("shipping-country");
+      if (saved) setCountry(saved);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("shipping-country", country);
+    } catch {}
+  }, [country]);
+
+  const totalWeightKg = useMemo(() => {
+    return state.items.reduce((sum, item) => {
+      const weight =
+        typeof (item as any).weight === "number" &&
+        Number.isFinite((item as any).weight)
+          ? (item as any).weight
+          : 0;
+      return sum + weight * item.quantity;
+    }, 0);
+  }, [state.items]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchShipping() {
+      if (state.items.length === 0) {
+        setShipping(0);
+        return;
+      }
+
+      const zoneCode = normalizeZoneCode(country);
+      const { data, error } = await supabase
+        .from("shipping_rates")
+        .select("max_weight, price")
+        .eq("zone_code", zoneCode)
+        .order("max_weight", { ascending: true });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load shipping rates:", error);
+        setShipping(0);
+        return;
+      }
+
+      const rates = (data || [])
+        .map((r: any) => ({
+          maxWeight:
+            typeof r?.max_weight === "number"
+              ? r.max_weight
+              : Number.parseFloat(String(r?.max_weight)),
+          price:
+            typeof r?.price === "number"
+              ? r.price
+              : Number.parseFloat(String(r?.price)),
+        }))
+        .filter((r) => Number.isFinite(r.maxWeight) && Number.isFinite(r.price))
+        .sort((a, b) => a.maxWeight - b.maxWeight);
+
+      const matched =
+        rates.find((r) => totalWeightKg <= r.maxWeight) ||
+        rates[rates.length - 1];
+      setShipping(matched?.price ?? 0);
+    }
+
+    fetchShipping();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [country, state.items.length, totalWeightKg]);
 
   const updateQuantity = (id: number, quantity: number) => {
     dispatch({ type: "UPDATE_QUANTITY", payload: { id, quantity } });
@@ -183,7 +280,22 @@ export default function CartPage() {
 
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Shipping</span>
-                      <span className="font-medium">Free</span>
+                      <span className="font-medium">
+                        {formatPrice(shipping)}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Ship to</span>
+                      <select
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="px-2 py-1 border border-border rounded-md bg-background text-sm"
+                      >
+                        <option value="Canada">Canada</option>
+                        <option value="United States">United States</option>
+                        <option value="International">International</option>
+                      </select>
                     </div>
 
                     <div className="flex justify-between">
@@ -197,7 +309,9 @@ export default function CartPage() {
                       <div className="flex justify-between">
                         <span className="text-lg font-medium">Total</span>
                         <span className="text-lg font-medium">
-                          {formatPrice(state.total * 1.08)}
+                          {formatPrice(
+                            state.total + state.total * 0.08 + shipping,
+                          )}
                         </span>
                       </div>
                     </div>

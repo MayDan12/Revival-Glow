@@ -2,11 +2,12 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCart } from "@/contexts/cart-context";
 import { useCurrency } from "@/contexts/currency-context";
+import { supabase } from "@/utils/supabase/client";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -24,9 +25,27 @@ export default function CheckoutPage() {
     city: "",
     state: "",
     zipCode: "",
+    country: "Canada",
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("shipping-country");
+      if (saved) {
+        setFormData((prev) => ({ ...prev, country: saved }));
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("shipping-country", formData.country);
+    } catch {}
+  }, [formData.country]);
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -34,10 +53,88 @@ export default function CheckoutPage() {
     }));
   };
 
-  // Calculate totals consistently
+  const normalizeZoneCode = (country: string): "CA" | "US" | "INTL" => {
+    const value = country.trim().toLowerCase();
+    if (value === "ca" || value === "canada" || value.includes("canada")) {
+      return "CA";
+    }
+    if (
+      value === "us" ||
+      value === "usa" ||
+      value === "united states" ||
+      value.includes("united states")
+    ) {
+      return "US";
+    }
+    return "INTL";
+  };
+
+  const totalWeightKg = useMemo(() => {
+    return state.items.reduce((sum, item) => {
+      const weight =
+        typeof (item as any).weight === "number" &&
+        Number.isFinite((item as any).weight)
+          ? (item as any).weight
+          : 0;
+      return sum + weight * item.quantity;
+    }, 0);
+  }, [state.items]);
+
+  const [shipping, setShipping] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchShipping() {
+      if (state.items.length === 0) {
+        setShipping(0);
+        return;
+      }
+
+      const zoneCode = normalizeZoneCode(formData.country);
+      const { data, error } = await supabase
+        .from("shipping_rates")
+        .select("max_weight, price")
+        .eq("zone_code", zoneCode)
+        .order("max_weight", { ascending: true });
+
+      if (cancelled) return;
+
+      if (error) {
+        console.error("Failed to load shipping rates:", error);
+        setShipping(0);
+        return;
+      }
+
+      const rates = (data || [])
+        .map((r: any) => ({
+          maxWeight:
+            typeof r?.max_weight === "number"
+              ? r.max_weight
+              : Number.parseFloat(String(r?.max_weight)),
+          price:
+            typeof r?.price === "number"
+              ? r.price
+              : Number.parseFloat(String(r?.price)),
+        }))
+        .filter((r) => Number.isFinite(r.maxWeight) && Number.isFinite(r.price))
+        .sort((a, b) => a.maxWeight - b.maxWeight);
+
+      const matched =
+        rates.find((r) => totalWeightKg <= r.maxWeight) ||
+        rates[rates.length - 1];
+      setShipping(matched?.price ?? 0);
+    }
+
+    fetchShipping();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [formData.country, state.items.length, totalWeightKg]);
+
   const subtotal = state.total;
   const tax = subtotal * 0.08;
-  const shipping = 10;
   const total = subtotal + tax + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -217,6 +314,19 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <select
+                      name="country"
+                      value={formData.country}
+                      onChange={handleInputChange}
+                      required
+                      className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
+                    >
+                      <option value="Canada">Canada</option>
+                      <option value="United States">United States</option>
+                      <option value="International">International</option>
+                    </select>
+                  </div>
                 </CardContent>
               </Card>
 
@@ -228,7 +338,7 @@ export default function CheckoutPage() {
               >
                 {isProcessing
                   ? "Processing..."
-                  : `Complete Purchase - $${total.toFixed(2)}`}
+                  : `Complete Purchase - ${formatPrice(total)}`}
               </Button>
             </form>
           </motion.div>

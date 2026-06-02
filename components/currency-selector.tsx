@@ -15,10 +15,10 @@ export function CurrencySelector() {
   const { currentCurrency, setCurrency, currencies } = useCurrency();
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center justify-center gap-2">
       <Globe className="w-4 h-4 text-muted-foreground" />
       <Select value={currentCurrency.code} onValueChange={setCurrency}>
-        <SelectTrigger className="w-[120px] h-9 border-none bg-transparent hover:bg-muted/50 focus:ring-0">
+        <SelectTrigger className="w-[120px] h-9 border border-muted-foreground/40 bg-transparent hover:bg-muted/50 focus:ring-0">
           <SelectValue placeholder="Select Currency" />
         </SelectTrigger>
         <SelectContent>
@@ -26,7 +26,9 @@ export function CurrencySelector() {
             <SelectItem key={currency.code} value={currency.code}>
               <span className="flex items-center gap-2">
                 <span className="font-medium">{currency.code}</span>
-                <span className="text-muted-foreground text-xs">({currency.symbol})</span>
+                <span className="text-muted-foreground text-xs">
+                  ({currency.symbol})
+                </span>
               </span>
             </SelectItem>
           ))}
