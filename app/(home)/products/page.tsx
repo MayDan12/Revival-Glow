@@ -75,7 +75,7 @@ export default function ProductsPage() {
           </h1>
           <p className="md:text-lg text-muted-foreground max-w-2xl mx-auto text-relaxed">
             {
-              "Discover our complete collection of premium skincare products, carefully formulated with natural ingredients for every skin type and concern."
+              "Discover our complete collection of premium Ayurvedic products, carefully formulated with nature's finest herbs to nourish, strengthen, and maintain your hair"
             }
           </p>
         </div>
@@ -118,12 +118,12 @@ export default function ProductsPage() {
               <SheetHeader>
                 <SheetTitle>Filters</SheetTitle>
               </SheetHeader>
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <ProductFilters
                   onFiltersChange={handleFiltersChange}
                   initialFilters={filters}
                 />
-              </div>
+              </div> */}
             </SheetContent>
           </Sheet>
         </div>
@@ -131,12 +131,12 @@ export default function ProductsPage() {
         {/* Products Layout */}
         <div className="grid grid-cols-1  md:grid-cols-4 gap-8">
           {/* Filters Sidebar */}
-          <div className="hidden md:block">
+          {/* <div className="hidden md:block">
             <ProductFilters
               onFiltersChange={handleFiltersChange}
               initialFilters={filters}
             />
-          </div>
+          </div> */}
 
           {/* Products Grid */}
           <div className="md:col-span-3">

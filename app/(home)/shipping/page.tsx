@@ -22,7 +22,7 @@ export default function ShippingPage() {
       icon: Clock,
       name: "Standard Shipping",
       timeframe: "5-7 Business Days",
-      cost: "Free on orders over $50",
+      cost: "",
       basePrice: "$5.99",
       description:
         "Perfect for orders that aren't urgent. Your Revival Glow products will arrive safely within a week.",
@@ -73,10 +73,10 @@ export default function ShippingPage() {
       q: "Do you ship to PO boxes?",
       a: "We can ship to PO boxes for standard and express shipping options. However, overnight shipping requires a physical address.",
     },
-    {
-      q: "Can I change my shipping address after placing an order?",
-      a: "If you contact us within 2 hours of placing your order, we can usually update the address. After that, you may need to refuse the original delivery and place a new order.",
-    },
+    // {
+    //   q: "Can I change my shipping address after placing an order?",
+    //   a: "If you contact us within 2 hours of placing your order, we can usually update the address. After that, you may need to refuse the original delivery and place a new order.",
+    // },
     {
       q: "How are my products packaged?",
       a: "All Revival Glow products are carefully packaged with protective materials and branded packaging to ensure they arrive in perfect condition and create an unboxing experience.",

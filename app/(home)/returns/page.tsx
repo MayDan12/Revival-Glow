@@ -95,10 +95,10 @@ export default function ReturnsPage() {
       q: "How long does it take to process a refund?",
       a: "Once we receive your returned items and inspect them, we'll process your refund within 5-7 business days. The refund will be credited to your original payment method.",
     },
-    {
-      q: "Do you accept exchanges?",
-      a: "Yes! You can exchange products for a different size, scent, or product within 30 days. Contact our support team to arrange an exchange.",
-    },
+    // {
+    //   q: "Do you accept exchanges?",
+    //   a: "Yes! You can exchange products for a different size, scent, or product within 30 days. Contact our support team to arrange an exchange.",
+    // },
     {
       q: "What if I received a damaged or defective product?",
       a: "We're committed to quality. If you receive a damaged or defective product, contact us immediately with photos. We'll send a replacement right away, no questions asked.",
@@ -294,10 +294,10 @@ export default function ReturnsPage() {
               <p>
                 <span className="font-semibold text-foreground">Email:</span>{" "}
                 <a
-                  href="mailto:returns@revivalglow.com"
+                  href="mailto:info@revivalglow.com"
                   className="text-green-600 hover:underline"
                 >
-                  returns@revivalglow.com
+                  info@revivalglow.com
                 </a>
               </p>
               <p>

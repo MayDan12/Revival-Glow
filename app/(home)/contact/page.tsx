@@ -19,16 +19,18 @@ export default function ContactPage() {
     subject: "",
     message: "",
   });
+  const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    setLoading(true);
     e.preventDefault();
     setSubmitted(true);
     const key = process.env.NEXT_WEBFORMS_API_KEY!;
@@ -59,6 +61,7 @@ export default function ContactPage() {
       toast.error("Failed to send message. Please try again.");
     } finally {
       setSubmitted(false);
+      setLoading(false);
     }
   };
 
@@ -81,12 +84,6 @@ export default function ContactPage() {
       title: "Email",
       detail: "info@revivalglowcare.com",
       description: "We'll respond within 24 hours",
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      detail: "+1 (555) 123-4567",
-      description: "Monday - Friday, 9am - 6pm EST",
     },
     {
       icon: MapPin,
@@ -265,7 +262,7 @@ export default function ContactPage() {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 type="submit"
-                disabled={submitted}
+                disabled={submitted || loading}
                 className={`w-full py-3 px-6 rounded-lg font-semibold transition-all ${
                   submitted
                     ? "bg-green-500 text-white"
@@ -296,11 +293,11 @@ export default function ContactPage() {
             {[
               {
                 q: "What is Revival Glow's return policy?",
-                a: "We offer a 30-day money-back guarantee on all products. If you're not satisfied, contact us for a full refund.",
+                a: "Due to the nature of our products, all sales of Revival Glow hair oil are final once the seal has been broken or removed. This policy is in place to protect the health and safety of all our customers, as we cannot guarantee the purity or safety of a product once it has left our control.",
               },
               {
                 q: "How long does shipping usually take?",
-                a: "Standard shipping takes 5-7 business days. We also offer expedited 2-3 day shipping options.",
+                a: "Standard shipping takes 2–8 business days within Canada. USA shipping takes 3–9 business days. International shipping times vary by country.",
               },
               {
                 q: "Are your products suitable for all hair types?",

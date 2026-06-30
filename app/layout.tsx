@@ -28,9 +28,9 @@ const breeSerif = Bree_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Pure Skincare - Natural Beauty Products",
+  title: "RevivalGlow - Ayurvedic Beauty & Wellness",
   description:
-    "Premium skincare products with natural ingredients for radiant, healthy skin.",
+    "Discover premium Ayurvedic products crafted with nature's finest herbs to nourish your beauty, wellness, and everyday self-care.",
   generator: "v0.app",
 };
 
