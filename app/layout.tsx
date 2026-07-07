@@ -31,7 +31,6 @@ export const metadata: Metadata = {
   title: "RevivalGlow - Ayurvedic Beauty & Wellness",
   description:
     "Discover premium Ayurvedic products crafted with nature's finest herbs to nourish your beauty, wellness, and everyday self-care.",
-  generator: "v0.app",
 };
 
 export default function RootLayout({

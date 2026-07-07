@@ -46,13 +46,16 @@ export function Footer() {
               }
             </p>
             <motion.div className="flex gap-4 mt-4">
-              <Instagram className="text-gray-800 hover:text-[#E4405F] transition-colors" />{" "}
+              <Instagram
+                className="text-gray-800 hover:text-[#E4405F] transition-colors"
+                onClick={() => {}}
+              />
               {/* Instagram pink */}
-              <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />{" "}
+              <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />
               {/* Facebook blue */}
-              <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />{" "}
+              <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />
               {/* Twitter blue */}
-              <Mail className="text-gray-800 hover:text-[#EA4335] transition-colors" />{" "}
+              <Mail className="text-gray-800 hover:text-[#EA4335] transition-colors" />
               {/* Gmail red */}
             </motion.div>
           </motion.div>

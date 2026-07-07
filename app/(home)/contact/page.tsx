@@ -86,12 +86,6 @@ export default function ContactPage() {
       description: "We'll respond within 24 hours",
     },
     {
-      icon: MapPin,
-      title: "Address",
-      detail: "123 Natural Beauty Lane",
-      description: "Wellness City, WC 12345, USA",
-    },
-    {
       icon: Clock,
       title: "Business Hours",
       detail: "Mon - Fri: 9am - 6pm",
@@ -133,7 +127,7 @@ export default function ContactPage() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10"
           >
             {contactInfo.map((info, index) => {
               const IconComponent = info.icon;
