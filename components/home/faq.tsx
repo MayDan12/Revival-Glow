@@ -17,13 +17,15 @@ export function Faq() {
         <AccordionTrigger>Product Information</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
           <p>
-            Our flagship product combines cutting-edge technology with sleek
-            design. Built with premium materials, it offers unparalleled
-            performance and reliability.
+            Our products are formulated with carefully selected, high-quality
+            ingredients to deliver visible results. Each product is designed
+            to address specific hair and scalp concerns while maintaining our
+            commitment to natural formulations.
           </p>
           <p>
-            Key features include advanced processing capabilities, and an
-            intuitive user interface designed for both beginners and experts.
+            We are committed to sustainability and ethical sourcing. All our
+            packaging is eco-friendly and recyclable. We also cruelty-free and
+            vegan-friendly.
           </p>
         </AccordionContent>
       </AccordionItem>
@@ -45,7 +47,7 @@ export function Faq() {
         <AccordionTrigger>Return Policy</AccordionTrigger>
         <AccordionContent className="flex flex-col gap-4 text-balance">
           <p>
-            We stand behind our products with a comprehensive 30-day return
+            We stand behind our products with a comprehensive 14-day return
             policy. If you&apos;re not completely satisfied, simply return the
             item in its original condition.
           </p>
