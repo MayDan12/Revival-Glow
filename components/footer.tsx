@@ -46,16 +46,21 @@ export function Footer() {
               }
             </p>
             <motion.div className="flex gap-4 mt-4">
-              <Instagram
-                className="text-gray-800 hover:text-[#E4405F] transition-colors"
-                onClick={() => {}}
-              />
+              <Link href="https://www.instagram.com/revivalglowcare">
+                <Instagram className="text-gray-800 hover:text-[#E4405F] transition-colors" />
+              </Link>
               {/* Instagram pink */}
-              <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />
+              <Link href="">
+                <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />
+              </Link>
               {/* Facebook blue */}
-              <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />
+              <Link href="">
+                <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />
+              </Link>
               {/* Twitter blue */}
-              <Mail className="text-gray-800 hover:text-[#EA4335] transition-colors" />
+              <Link href="">
+                <Mail className="text-gray-800 hover:text-[#EA4335] transition-colors" />
+              </Link>
               {/* Gmail red */}
             </motion.div>
           </motion.div>
@@ -133,7 +138,7 @@ export function Footer() {
               </li>
               <li>
                 <Link
-                  href="/faq"
+                  href="/contact"
                   className="text-gray-800 hover:text-primary transition-colors"
                 >
                   {"FAQ"}
