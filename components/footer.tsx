@@ -50,11 +50,14 @@ export function Footer() {
                 <Instagram className="text-gray-800 hover:text-[#E4405F] transition-colors" />
               </Link>
               {/* Instagram pink */}
-              <Link href="">
+              <Link href="https://www.facebook.com/profile.php?id=61585793986683">
                 <Facebook className="text-gray-800 hover:text-[#1877F2] transition-colors" />
               </Link>
               {/* Facebook blue */}
               <Link href="">
+                <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />
+              </Link>
+              <Link href="https://www.tiktok.com/@revivalglow">
                 <Twitter className="text-gray-800 hover:text-[#1DA1F2] transition-colors" />
               </Link>
               {/* Twitter blue */}
@@ -162,7 +165,7 @@ export function Footer() {
             {"info@revivalglowcare.com"}
           </p>
           <p className="text-gray-800 font-serif text-sm">
-            {"© 2025 Revival Glow. All rights reserved."}
+            {"© 2026 Revival Glow. All rights reserved."}
           </p>
         </motion.div>
         {/* Payment Options */}

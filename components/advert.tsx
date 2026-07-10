@@ -5,9 +5,9 @@ import { useCurrency } from "@/contexts/currency-context";
 export function Advert() {
   const { formatPrice } = useCurrency();
   const messages = [
-    `Free shipping on orders over ${formatPrice(50)}`,
-    "New arrivals in store",
-    "Holiday sale up to 30%",
+    `Free Shipping — First 100 Orders Only`,
+    "Save $10 on Roote Hair Oil — Now $69",
+    "Buy 2, Save $13 — Now $123",
   ];
 
   return (

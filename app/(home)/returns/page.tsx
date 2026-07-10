@@ -120,8 +120,8 @@ export default function ReturnsPage() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
           >
-            Read our return and refund policy below to understand how we
-            process returns for our products.
+            Read our return and refund policy below to understand how we process
+            returns for our products.
           </motion.p>
         </div>
       </section>
@@ -143,7 +143,9 @@ export default function ReturnsPage() {
               Health & Safety Guarantee
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              This policy is in place to protect the health and safety of all our customers, as we cannot guarantee the purity or safety of a product once it has left our control.
+              This policy is in place to protect the health and safety of all
+              our customers, as we cannot guarantee the purity or safety of a
+              product once it has left our control.
             </p>
           </motion.div>
         </div>
@@ -287,7 +289,7 @@ export default function ReturnsPage() {
                   info@revivalglow.com
                 </a>
               </p>
-              <p>
+              {/* <p>
                 <span className="font-semibold text-foreground">Phone:</span>{" "}
                 <a
                   href="tel:+15551234567"
@@ -295,7 +297,7 @@ export default function ReturnsPage() {
                 >
                   +1 (555) 123-4567
                 </a>
-              </p>
+              </p> */}
               <p className="text-sm text-muted-foreground">
                 Monday - Friday, 9am - 6pm EST
               </p>

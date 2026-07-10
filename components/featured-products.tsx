@@ -45,7 +45,7 @@ export function FeaturedProducts() {
           </h2>
           <p className="text-lg text-gray-700 max-w-2xl mx-auto text-balance">
             {
-              "Discover our most loved haircare essentials, carefully formulated with natural ingredients for radiant, healthy skin."
+              "Discover our most loved haircare essentials, carefully formulated with natural ingredients for radiant, healthy hair."
             }
           </p>
         </motion.div>

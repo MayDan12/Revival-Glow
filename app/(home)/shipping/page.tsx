@@ -57,10 +57,10 @@ export default function ShippingPage() {
   ];
 
   const faqItems = [
-    {
-      q: "Do you offer free shipping?",
-      a: "Yes! We offer free standard shipping on all orders over $50. Orders under $50 have a standard shipping fee of $5.99.",
-    },
+    // {
+    //   q: "Do you offer free shipping?",
+    //   a: "Yes! We offer free standard shipping on all orders over $50. Orders under $50 have a standard shipping fee of $5.99.",
+    // },
     {
       q: "Can I track my order?",
       a: "You'll receive a tracking number via email as soon as your order ships. You can track it in real-time on our partner carrier's website.",
