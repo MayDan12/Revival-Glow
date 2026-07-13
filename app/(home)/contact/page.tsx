@@ -33,7 +33,7 @@ export default function ContactPage() {
     setLoading(true);
     e.preventDefault();
     setSubmitted(true);
-    const key = process.env.NEXT_WEBFORMS_API_KEY!;
+    const key = process.env.NEXT_PUBLIC_WEBFORMS_API_KEY!;
     try {
       const formDataObj = new FormData();
       formDataObj.append("name", formData.name);
@@ -46,6 +46,8 @@ export default function ContactPage() {
         method: "POST",
         body: formDataObj,
       });
+
+      console.log("response", response);
 
       const data = await response.json();
       if (data.success) {
