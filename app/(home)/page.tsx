@@ -8,13 +8,12 @@ import CarouselProducts from "@/components/home/carousel";
 import { motion } from "framer-motion";
 import { Separator } from "@/components/ui/separator";
 import { ProductCarousel } from "@/components/product-carousel";
-import { Waitlist } from "@/components/home/waitlist";
-import { WaitlistModal } from "@/components/home/waitlist-modal";
+import { LaunchModal } from "@/components/home/launch-modal";
 
 export default function HomePage() {
   return (
     <main>
-      <WaitlistModal />
+      <LaunchModal />
       <HeroSection />
       {/* <CategorySection /> */}
       <FeaturedProducts />
@@ -29,7 +28,6 @@ export default function HomePage() {
 
         <Faq />
       </div>
-      <Waitlist />
     </main>
   );
 }
