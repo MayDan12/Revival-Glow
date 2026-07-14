@@ -23,14 +23,15 @@ const testimonials = [
     rating: 5,
     image: "/zeelu.jpg",
   },
+  // gfcvyuhvbjk
   {
     id: 3,
-    name: "Marcus Williams",
+    name: "Nimi I",
     role: "Wellness Blogger",
     content:
       "The quality and authenticity of Revival Glow products are unmatched. I recommend them to everyone looking for real, visible results without harmful chemicals.",
     rating: 5,
-    image: "/man-healthy-hair.jpg",
+    image: "/nimi.jpg",
   },
   {
     id: 4,
