@@ -7,21 +7,21 @@ import { useState, useEffect } from "react";
 const testimonials = [
   {
     id: 1,
-    name: "Amara Johnson",
+    name: "Moyo S",
     role: "Hair Care Enthusiast",
     content:
       "Revival Glow transformed my hair journey. After just 3 weeks, my hair felt stronger and healthier than ever. The natural ingredients make all the difference!",
     rating: 5,
-    image: "/woman-with-healthy-hair.jpg",
+    image: "/tobi.jpg",
   },
   {
     id: 2,
-    name: "Zainab Ahmed",
+    name: "Zeelu T",
     role: "Natural Hair Advocate",
     content:
       "I was skeptical about natural products, but Revival Glow proved me wrong. My hair loss has significantly reduced, and my curls are more defined and vibrant.",
     rating: 5,
-    image: "/woman-natural-curls.jpg",
+    image: "/zeelu.jpg",
   },
   {
     id: 3,
@@ -59,7 +59,7 @@ export function TestimonialsSection() {
 
   const goToPrevious = () => {
     setCurrentIndex(
-      (prev) => (prev - 1 + testimonials.length) % testimonials.length
+      (prev) => (prev - 1 + testimonials.length) % testimonials.length,
     );
     setAutoPlay(false);
   };
