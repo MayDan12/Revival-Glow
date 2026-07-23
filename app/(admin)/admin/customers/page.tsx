@@ -338,11 +338,17 @@ export default function AdminCustomersPage() {
 
       console.log("Sending email:", emailData);
 
-      // TODO: Integrate with your email service (Resend, SendGrid, etc.)
-      // await fetch('/api/send-email', {
-      //   method: 'POST',
-      //   body: JSON.stringify(emailData)
-      // });
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(emailData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
 
       toast.success(`Email sent to ${selectedCustomer.email}`);
       setShowEmailDialog(false);

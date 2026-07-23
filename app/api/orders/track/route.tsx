@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
     }
 
     // ✅ Update payment and order status if paid
-    if (paymentStatus === "paid") {
+    if (paymentStatus === "paid" && existingOrder.payment_status !== "paid") {
       const { error: updateError } = await supabase
         .from("orders")
         .update({
@@ -72,6 +72,21 @@ export async function GET(req: NextRequest) {
 
       if (updateError) {
         console.error("❌ Error updating order:", updateError);
+      } else {
+        const { sendOrderConfirmation } = await import("@/utils/emails/send");
+        const customerEmail = session.customer_details?.email || existingOrder.email;
+        if (customerEmail) {
+          try {
+            await sendOrderConfirmation(customerEmail, {
+              customerName: existingOrder.full_name || "Valued Customer",
+              orderNumber: existingOrder.id,
+              orderTotal: session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : "Paid",
+            });
+            console.log("📧 Order confirmation email sent from track route to:", customerEmail);
+          } catch (emailErr) {
+            console.error("❌ Failed to send order confirmation email:", emailErr);
+          }
+        }
       }
     }
 

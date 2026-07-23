@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { createClient } from "@/utils/supabase/server";
+import { sendOrderConfirmation } from "@/utils/emails/send";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -21,34 +22,40 @@ export async function POST(req: NextRequest) {
       const session = event.data.object as Stripe.Checkout.Session;
 
       const supabase = await createClient();
-
       const metadata = session.metadata || {};
 
-      // ✅ Save the order details into Supabase
-      const { error } = await supabase.from("orders").insert([
-        {
-          email: metadata.email,
-          full_name: metadata.full_name,
-          phone: metadata.phone,
-          address: metadata.address,
-          city: metadata.city,
-          state: metadata.state,
-          postal_code: metadata.postal_code,
-          country: metadata.country,
-          total_amount: session.amount_total
-            ? session.amount_total / 100
-            : null,
-          payment_status: session.payment_status,
-          payment_intent: session.payment_intent,
-          stripe_session_id: session.id,
-          order_status: "processing",
-        },
-      ]);
+      if (metadata.order_id) {
+        // ✅ Update the existing pending order instead of creating a duplicate
+        const { error } = await supabase
+          .from("orders")
+          .update({
+            payment_status: "paid",
+            order_status: "processing",
+          })
+          .eq("id", metadata.order_id);
 
-      if (error) {
-        console.error("❌ Error saving order:", error.message);
+        if (error) {
+          console.error("❌ Error updating order:", error.message);
+        } else {
+          console.log("✅ Order updated for:", session.customer_email || metadata.email);
+
+          // ✅ Send order confirmation email
+          const customerEmail = session.customer_details?.email || session.customer_email;
+          if (customerEmail) {
+            try {
+              await sendOrderConfirmation(customerEmail, {
+                customerName: metadata.customer_name || "Valued Customer",
+                orderNumber: metadata.order_id,
+                orderTotal: session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : "Paid",
+              });
+              console.log("📧 Order confirmation email sent to:", customerEmail);
+            } catch (emailErr) {
+              console.error("❌ Failed to send order confirmation email:", emailErr);
+            }
+          }
+        }
       } else {
-        console.log("✅ Order saved for:", metadata.email);
+        console.error("❌ Missing order_id in session metadata");
       }
     }
 
@@ -58,3 +65,4 @@ export async function POST(req: NextRequest) {
     return new NextResponse(`Webhook Error: ${err.message}`, { status: 400 });
   }
 }
+

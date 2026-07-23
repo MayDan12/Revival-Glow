@@ -234,7 +234,7 @@ export default function SuccessPage() {
               <div className="flex items-center gap-2">
                 <div className="w-3 h-3 bg-green-500 rounded-full"></div>
                 <span className="text-lg font-semibold text-foreground capitalize">
-                  {order.payment_status || "Completed"}
+                  {order.payment_status}
                 </span>
               </div>
             </div>
@@ -243,7 +243,7 @@ export default function SuccessPage() {
                 Order Status
               </p>
               <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 text-sm font-semibold rounded-full">
-                {order.order_status || "Processing"}
+                {order.order_status}
               </span>
             </div>
             <div>
