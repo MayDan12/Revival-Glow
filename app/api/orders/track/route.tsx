@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
             await sendOrderConfirmation(customerEmail, {
               customerName: existingOrder.full_name || "Valued Customer",
               orderNumber: existingOrder.id,
-              orderTotal: session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : "Paid",
+              orderTotal: session.amount_total ? `$${(session.amount_total / 100).toFixed(2)}` : "Paid",  
             });
             console.log("📧 Order confirmation email sent from track route to:", customerEmail);
           } catch (emailErr) {
