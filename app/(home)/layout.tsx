@@ -10,6 +10,8 @@ export const metadata: Metadata = {
     "Discover premium Ayurvedic products crafted with nature's finest herbs to nourish your beauty, wellness, and everyday self-care.",
 };
 
+// ewhiufangiunbgiouaordhgnei
+
 export default function HomeLayout({
   children,
 }: Readonly<{
