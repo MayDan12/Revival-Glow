@@ -10,6 +10,12 @@ import { useCurrency } from "@/contexts/currency-context";
 import { supabase } from "@/utils/supabase/client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { AlertTriangle } from "lucide-react";
+import {
+  COUNTRIES_BY_GROUP,
+  getZoneCode,
+  resolveCountry,
+} from "@/lib/countries";
 
 export default function CheckoutPage() {
   const { state, dispatch } = useCart();
@@ -53,21 +59,9 @@ export default function CheckoutPage() {
     }));
   };
 
-  const normalizeZoneCode = (country: string): "CA" | "US" | "INTL" => {
-    const value = country.trim().toLowerCase();
-    if (value === "ca" || value === "canada" || value.includes("canada")) {
-      return "CA";
-    }
-    if (
-      value === "us" ||
-      value === "usa" ||
-      value === "united states" ||
-      value.includes("united states")
-    ) {
-      return "US";
-    }
-    return "INTL";
-  };
+  const normalizeZoneCode = (country: string) => getZoneCode(country);
+
+  const selectedCountryInfo = resolveCountry(formData.country);
 
   const totalWeightKg = useMemo(() => {
     return state.items.reduce((sum, item) => {
@@ -314,7 +308,8 @@ export default function CheckoutPage() {
                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  {/* Country — full Chit Chats supported list */}
+                  <div>
                     <select
                       name="country"
                       value={formData.country}
@@ -322,10 +317,44 @@ export default function CheckoutPage() {
                       required
                       className="w-full px-4 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary bg-background"
                     >
-                      <option value="Canada">Canada</option>
-                      <option value="United States">United States</option>
-                      <option value="International">International</option>
+                      {/* Canada */}
+                      <optgroup label="Canada">
+                        {COUNTRIES_BY_GROUP.domestic.map((c) => (
+                          <option key={c.code} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </optgroup>
+
+                      {/* United States */}
+                      <optgroup label="United States">
+                        {COUNTRIES_BY_GROUP.us.map((c) => (
+                          <option key={c.code} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </optgroup>
+
+                      {/* International */}
+                      <optgroup label="International">
+                        {COUNTRIES_BY_GROUP.international.map((c) => (
+                          <option key={c.code} value={c.name}>
+                            {c.name}
+                            {c.mayBeUnavailable ? " ⚠️" : ""}
+                          </option>
+                        ))}
+                      </optgroup>
                     </select>
+
+                    {/* Warn for temporarily unavailable countries */}
+                    {selectedCountryInfo?.mayBeUnavailable && (
+                      <div className="mt-2 flex items-start gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm">
+                        <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                        <span>
+                          Shipping to <strong>{selectedCountryInfo.name}</strong> may be temporarily unavailable due to EU policy changes. We'll confirm before dispatching your order.
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

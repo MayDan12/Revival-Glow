@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
+import { getZoneCode } from "@/lib/countries";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
@@ -29,21 +30,10 @@ export async function POST(req: NextRequest) {
     const paymentRate =
       paymentCurrency === requestedCurrency ? requestedRate : 1;
 
-    const normalizeZoneCode = (country: unknown): "CA" | "US" | "INTL" => {
+    // Use shared country list — consistent with checkout page dropdown
+    const normalizeZoneCode = (country: unknown) => {
       if (typeof country !== "string") return "CA";
-      const value = country.trim().toLowerCase();
-      if (value === "ca" || value === "canada" || value.includes("canada")) {
-        return "CA";
-      }
-      if (
-        value === "us" ||
-        value === "usa" ||
-        value === "united states" ||
-        value.includes("united states")
-      ) {
-        return "US";
-      }
-      return "INTL";
+      return getZoneCode(country);
     };
 
     const safeItems = Array.isArray(items) ? items : [];
@@ -268,15 +258,6 @@ export async function POST(req: NextRequest) {
       console.error("Order items error:", itemsError);
       // Don't fail the entire request if items fail, but log it
     }
-
-    // Add a tracking record
-    await supabase.from("order_tracking").insert([
-      {
-        order_id: order.id,
-        tracking_number: Math.random().toString(36).substr(2, 9).toUpperCase(),
-        status: "pending",
-      },
-    ]);
 
     return NextResponse.json({ id: session.id, url: session.url });
   } catch (error: any) {

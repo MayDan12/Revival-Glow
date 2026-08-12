@@ -58,11 +58,12 @@ interface TrackingOrder {
 }
 
 interface TrackingEvent {
-  id: number;
-  order_id: number;
+  id: string;
+  shipment_id?: string;
   status: string;
   description: string;
   location?: string;
+  event_time?: string;
   created_at: string;
 }
 
@@ -86,53 +87,48 @@ export default function OrderTrackingPage() {
       setLoading(true);
       setSearched(true);
 
-      // Fetch order details
-      const { data: orderData, error: orderError } = await supabase
-        .from("orders")
-        .select("*")
-        .eq("id", parseInt(orderId))
-        .eq("email", email.toLowerCase())
-        .single();
+      // Use our server-side tracking endpoint — email verified server-side
+      const res = await fetch(
+        `/api/shipping/${encodeURIComponent(orderId.trim())}/tracking?email=${encodeURIComponent(email.trim())}`,
+      );
 
-      if (orderError) {
-        if (orderError.code === "PGRST116") {
-          toast.error("Order not found. Please check your order ID and email.");
-        } else {
-          throw orderError;
-        }
-        return;
-      }
-
-      if (!orderData) {
+      if (res.status === 404) {
         toast.error("Order not found. Please check your order ID and email.");
+        setOrder(null);
+        setTrackingEvents([]);
         return;
       }
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch order tracking");
+      }
+
+      const data = await res.json();
+
+      // Map API response back to the shape TrackingOrder expects
+      const orderData: TrackingOrder = {
+        id: data.order.id,
+        email: email.trim(),
+        full_name: data.order.customerName ?? "",
+        phone: "",
+        address: "",
+        city: data.order.city ?? "",
+        state: "",
+        postal_code: "",
+        country: data.order.country ?? "",
+        total_amount: 0,
+        order_status: data.order.status,
+        payment_status: "paid",
+        tracking_number: data.shipment?.tracking_number ?? undefined,
+        carrier: "Chit Chats",
+        shipping_method: data.shipment?.service_name ?? undefined,
+        estimated_delivery: undefined,
+        items: [],
+        created_at: data.order.createdAt,
+      };
 
       setOrder(orderData);
-
-      // Fetch tracking events
-      const { data: eventsData, error: eventsError } = await supabase
-        .from("order_tracking_events")
-        .select("*")
-        .eq("order_id", parseInt(orderId))
-        .order("created_at", { ascending: true });
-
-      if (eventsError) throw eventsError;
-
-      // If no tracking events exist, create initial ones based on order status
-      if (!eventsData || eventsData.length === 0) {
-        await createInitialTrackingEvents(orderData);
-        const { data: newEvents } = await supabase
-          .from("order_tracking_events")
-          .select("*")
-          .eq("order_id", parseInt(orderId))
-          .order("created_at", { ascending: true });
-
-        setTrackingEvents(newEvents || []);
-      } else {
-        setTrackingEvents(eventsData);
-      }
-
+      setTrackingEvents(data.events ?? []);
       toast.success("Order found!");
     } catch (error) {
       console.error("Error tracking order:", error);
@@ -140,61 +136,6 @@ export default function OrderTrackingPage() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const createInitialTrackingEvents = async (order: TrackingOrder) => {
-    const events = [
-      {
-        order_id: order.id,
-        status: "order_placed",
-        description: "Order confirmed and payment received",
-        location: "Online Store",
-        created_at: order.created_at,
-      },
-    ];
-
-    if (
-      order.order_status === "processing" ||
-      order.order_status === "shipped" ||
-      order.order_status === "delivered"
-    ) {
-      events.push({
-        order_id: order.id,
-        status: "processing",
-        description: "Order is being processed and prepared for shipment",
-        location: "Warehouse",
-        created_at: new Date(
-          Date.now() - 2 * 24 * 60 * 60 * 1000
-        ).toISOString(), // 2 days ago
-      });
-    }
-
-    if (
-      order.order_status === "shipped" ||
-      order.order_status === "delivered"
-    ) {
-      events.push({
-        order_id: order.id,
-        status: "shipped",
-        description: `Order has been shipped via ${order.carrier}`,
-        location: "Shipping Facility",
-        created_at: new Date(
-          Date.now() - 1 * 24 * 60 * 60 * 1000
-        ).toISOString(), // 1 day ago
-      });
-    }
-
-    if (order.order_status === "delivered") {
-      events.push({
-        order_id: order.id,
-        status: "delivered",
-        description: "Order has been delivered",
-        location: order.city + ", " + order.state,
-        created_at: new Date().toISOString(),
-      });
-    }
-
-    await supabase.from("order_tracking_events").insert(events);
   };
 
   const copyTrackingNumber = () => {

@@ -1,7 +1,7 @@
-// app/admin/shipment/page.tsx
+// app/admin/shipments/page.tsx
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -53,12 +53,14 @@ import {
   Copy,
   ExternalLink,
   RefreshCw,
-  MoreVertical,
 } from "lucide-react";
 import { supabase } from "@/utils/supabase/client";
 import { toast } from "sonner";
 
+// ─────────────────────────────────────────────
 // Types
+// ─────────────────────────────────────────────
+
 interface ShippingOrder {
   id: number;
   email: string;
@@ -73,129 +75,98 @@ interface ShippingOrder {
   order_status:
     | "pending"
     | "processing"
+    | "label_created"
     | "shipped"
     | "delivered"
     | "cancelled";
   payment_status: string;
   items: any[];
   created_at: string;
-  shipping_method?: string;
-  tracking_number?: string;
-  carrier?: string;
-  shipping_label_url?: string;
-  estimated_delivery?: string;
+  /** Populated from shipments join */
+  shipment?: {
+    id: string;
+    external_shipment_id: string | null;
+    tracking_number: string | null;
+    label_url: string | null;
+    service_name: string | null;
+    shipping_cost: number | null;
+    status: string;
+  } | null;
 }
 
-interface Carrier {
-  id: string;
-  name: string;
-  service: string;
-  price: number;
-  estimated_days: number;
-}
-
-interface BulkAction {
-  orderIds: number[];
-  action: "mark_shipped" | "print_labels" | "update_tracking";
-}
+// ─────────────────────────────────────────────
+// Component
+// ─────────────────────────────────────────────
 
 export default function ShipmentManagement() {
-  // State
   const [orders, setOrders] = useState<ShippingOrder[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("processing");
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
-  const [selectedOrder, setSelectedOrder] = useState<ShippingOrder | null>(
-    null
-  );
+  const [selectedOrder, setSelectedOrder] = useState<ShippingOrder | null>(null);
   const [showFulfillment, setShowFulfillment] = useState(false);
-  const [showBulkActions, setShowBulkActions] = useState(false);
-  const [carriers, setCarriers] = useState<Carrier[]>([]);
-  const [selectedCarrier, setSelectedCarrier] = useState<string>("");
-  const [trackingNumber, setTrackingNumber] = useState("");
-  const [fulfillingOrderId, setFulfillingOrderId] = useState<number | null>(
-    null
-  );
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
 
-  // Mock carriers - in real app, you'd fetch from shipping API
-  const mockCarriers: Carrier[] = [
-    {
-      id: "usps_priority",
-      name: "USPS",
-      service: "Priority Mail",
-      price: 895,
-      estimated_days: 2,
-    },
-    {
-      id: "usps_first_class",
-      name: "USPS",
-      service: "First Class",
-      price: 495,
-      estimated_days: 3,
-    },
-    {
-      id: "ups_ground",
-      name: "UPS",
-      service: "Ground",
-      price: 1295,
-      estimated_days: 5,
-    },
-    {
-      id: "ups_2day",
-      name: "UPS",
-      service: "2nd Day Air",
-      price: 2495,
-      estimated_days: 2,
-    },
-    {
-      id: "fedex_ground",
-      name: "FedEx",
-      service: "Ground",
-      price: 1195,
-      estimated_days: 4,
-    },
-    {
-      id: "fedex_2day",
-      name: "FedEx",
-      service: "2Day",
-      price: 2295,
-      estimated_days: 2,
-    },
-  ];
+  // ── Fetch orders with their shipments ─────────────────────────────────
 
-  useEffect(() => {
-    fetchOrders();
-    setCarriers(mockCarriers);
-  }, []);
-
-  const fetchOrders = async () => {
+  const fetchOrders = useCallback(async () => {
     try {
       setLoading(true);
+
       const { data, error } = await supabase
         .from("orders")
         .select("*")
-        .in("order_status", ["pending", "processing"]) // Only show unfulfilled orders
+        .not("payment_status", "eq", "pending")
+        .not("order_status", "in", '("cancelled","delivered")')
         .order("created_at", { ascending: true });
 
       if (error) throw error;
-      setOrders(data || []);
+
+      const orderList = data || [];
+      const orderIds = orderList.map((o: any) => o.id);
+
+      // Load associated shipments
+      let shipmentsMap: Record<number, any> = {};
+      if (orderIds.length > 0) {
+        const { data: shipments } = await supabase
+          .from("shipments")
+          .select("*")
+          .in("order_id", orderIds);
+
+        (shipments || []).forEach((s: any) => {
+          shipmentsMap[s.order_id] = s;
+        });
+      }
+
+      setOrders(
+        orderList.map((o: any) => ({
+          ...o,
+          items: o.items ?? [],
+          shipment: shipmentsMap[o.id] ?? null,
+        })),
+      );
     } catch (error) {
       console.error("Error fetching orders:", error);
       toast.error("Failed to load orders");
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  // Filter orders
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  // ── Filtered orders ───────────────────────────────────────────────────
+
   const filteredOrders = useMemo(() => {
     return orders.filter((order) => {
       const matchesSearch =
-        order.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        order.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.id.toString().includes(searchTerm) ||
-        (order.tracking_number && order.tracking_number.includes(searchTerm));
+        order.shipment?.tracking_number?.includes(searchTerm);
 
       const matchesStatus =
         statusFilter === "all" || order.order_status === statusFilter;
@@ -204,260 +175,182 @@ export default function ShipmentManagement() {
     });
   }, [orders, searchTerm, statusFilter]);
 
-  // Fulfillment stats
-  const fulfillmentStats = useMemo(() => {
-    const totalOrders = orders.length;
-    const pending = orders.filter((o) => o.order_status === "pending").length;
-    const processing = orders.filter(
-      (o) => o.order_status === "processing"
-    ).length;
-    const readyToShip = orders.filter(
-      (o) => o.order_status === "processing" && o.payment_status === "paid"
-    ).length;
+  // ── Stats ─────────────────────────────────────────────────────────────
 
-    return { totalOrders, pending, processing, readyToShip };
+  const stats = useMemo(() => {
+    const total = orders.length;
+    const awaitingShipment = orders.filter(
+      (o) => o.payment_status === "paid" && !o.shipment?.external_shipment_id,
+    ).length;
+    const labelCreated = orders.filter(
+      (o) => o.shipment?.label_url && !o.shipment?.tracking_number,
+    ).length;
+    const shipped = orders.filter((o) => o.order_status === "shipped").length;
+    return { total, awaitingShipment, labelCreated, shipped };
   }, [orders]);
 
-  // Generate tracking number
-  const generateTrackingNumber = (carrier: string) => {
-    const prefixes = {
-      usps: "94",
-      ups: "1Z",
-      fedex: "",
-    };
+  // ── Action: Create Chit Chats shipment ────────────────────────────────
 
-    const prefix = prefixes[carrier as keyof typeof prefixes] || "";
-    const random = Math.random().toString(36).substr(2, 15).toUpperCase();
-    return `${prefix}${random}`;
-  };
-
-  // Fulfill order
-  const fulfillOrder = async (orderId: number) => {
+  const createShipment = async (orderId: number) => {
     try {
-      setFulfillingOrderId(orderId);
+      setActionLoading(orderId);
 
-      if (!selectedCarrier) {
-        toast.error("Please select a shipping carrier");
-        return;
+      const res = await fetch("/api/shipping/create-shipment", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        // 409 = already exists — not really an error
+        if (res.status === 409) {
+          toast.info("Shipment already created for this order.");
+        } else {
+          throw new Error(data.error || "Failed to create shipment");
+        }
+      } else {
+        toast.success(`Shipment created in Chit Chats for order #${orderId}`);
       }
 
-      const carrier = carriers.find((c) => c.id === selectedCarrier);
-      if (!carrier) return;
-
-      const tracking =
-        trackingNumber || generateTrackingNumber(carrier.name.toLowerCase());
-      const estimatedDelivery = new Date();
-      estimatedDelivery.setDate(
-        estimatedDelivery.getDate() + carrier.estimated_days
-      );
-
-      const { error } = await supabase
-        .from("orders")
-        .update({
-          order_status: "shipped",
-          tracking_number: tracking,
-          carrier: carrier.name,
-          shipping_method: carrier.service,
-          estimated_delivery: estimatedDelivery.toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", orderId);
-
-      if (error) throw error;
-
-      // Update local state
-      setOrders((prev) =>
-        prev.map((order) =>
-          order.id === orderId
-            ? {
-                ...order,
-                order_status: "shipped" as const,
-                tracking_number: tracking,
-                carrier: carrier.name,
-                shipping_method: carrier.service,
-                estimated_delivery: estimatedDelivery.toISOString(),
-              }
-            : order
-        )
-      );
-
-      // In a real app, you would:
-      // 1. Generate shipping label via API
-      // 2. Send tracking email to customer
-      // 3. Update inventory
-
-      toast.success(`Order #${orderId} marked as shipped`);
+      await fetchOrders();
       setShowFulfillment(false);
-      setSelectedCarrier("");
-      setTrackingNumber("");
-
-      // Simulate label generation
-      setTimeout(() => {
-        toast.info(`Shipping label generated for order #${orderId}`);
-      }, 1000);
-    } catch (error) {
-      console.error("Error fulfilling order:", error);
-      toast.error("Failed to fulfill order");
+    } catch (error: any) {
+      console.error("createShipment error:", error);
+      toast.error(error.message || "Failed to create shipment");
     } finally {
-      setFulfillingOrderId(null);
+      setActionLoading(null);
     }
   };
 
-  // Bulk fulfill orders
-  const bulkFulfillOrders = async () => {
-    if (selectedOrders.length === 0) {
-      toast.error("Please select orders to fulfill");
-      return;
-    }
+  // ── Action: Buy label ─────────────────────────────────────────────────
 
+  const buyLabel = async (orderId: number) => {
     try {
-      // For demo, we'll use the first selected carrier for all orders
-      // In real app, you might want individual carrier selection
-      const carrier = carriers.find((c) => c.id === selectedCarrier);
-      if (!carrier) {
-        toast.error("Please select a shipping carrier");
-        return;
+      setActionLoading(orderId);
+
+      const res = await fetch("/api/shipping/buy-label", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to buy label");
       }
 
-      const updates = selectedOrders.map((orderId) => ({
-        id: orderId,
-        order_status: "shipped" as const,
-        tracking_number: generateTrackingNumber(carrier.name.toLowerCase()),
-        carrier: carrier.name,
-        shipping_method: carrier.service,
-        estimated_delivery: new Date(
-          Date.now() + carrier.estimated_days * 24 * 60 * 60 * 1000
-        ).toISOString(),
-        updated_at: new Date().toISOString(),
-      }));
-
-      // Update database
-      for (const update of updates) {
-        const { error } = await supabase
-          .from("orders")
-          .update(update)
-          .eq("id", update.id);
-
-        if (error) throw error;
-      }
-
-      // Update local state
-      setOrders((prev) =>
-        prev.map((order) => {
-          const update = updates.find((u) => u.id === order.id);
-          return update ? { ...order, ...update } : order;
-        })
+      toast.success(
+        `Label purchased! Tracking: ${data.trackingNumber ?? "assigned by carrier"}`,
       );
-
-      toast.success(`Successfully shipped ${selectedOrders.length} orders`);
-      setShowBulkActions(false);
-      setSelectedOrders([]);
-      setSelectedCarrier("");
-    } catch (error) {
-      console.error("Error in bulk fulfillment:", error);
-      toast.error("Failed to fulfill orders");
+      await fetchOrders();
+      setShowFulfillment(false);
+    } catch (error: any) {
+      console.error("buyLabel error:", error);
+      toast.error(error.message || "Failed to buy label");
+    } finally {
+      setActionLoading(null);
     }
   };
 
-  // Print shipping labels
-  const printShippingLabels = async (orderIds: number[]) => {
-    try {
-      // Simulate label generation
-      toast.info(`Generating ${orderIds.length} shipping labels...`);
+  // ── Helpers ───────────────────────────────────────────────────────────
 
-      // In real app, you would:
-      // 1. Call shipping API to generate labels
-      // 2. Return PDF URLs
-      // 3. Open print dialog or download
-
-      setTimeout(() => {
-        toast.success(`Shipping labels ready for ${orderIds.length} orders`);
-        // Here you would typically open the PDF in a new window
-        window.open(
-          `/api/shipping/labels?orders=${orderIds.join(",")}`,
-          "_blank"
-        );
-      }, 2000);
-    } catch (error) {
-      console.error("Error printing labels:", error);
-      toast.error("Failed to generate shipping labels");
-    }
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard");
   };
 
-  // Toggle order selection
-  const toggleOrderSelection = (orderId: number) => {
-    setSelectedOrders((prev) =>
-      prev.includes(orderId)
-        ? prev.filter((id) => id !== orderId)
-        : [...prev, orderId]
-    );
-  };
-
-  // Select all filtered orders
-  const selectAllOrders = () => {
-    setSelectedOrders(filteredOrders.map((order) => order.id));
-  };
-
-  // Clear selection
-  const clearSelection = () => {
-    setSelectedOrders([]);
-  };
-
-  // Format currency
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
+    // amounts stored in cents
+    return new Intl.NumberFormat("en-CA", {
       style: "currency",
-      currency: "USD",
+      currency: "CAD",
     }).format(amount / 100);
   };
 
-  // Format date
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+    return new Date(dateString).toLocaleDateString("en-CA", {
       month: "short",
       day: "numeric",
       year: "numeric",
     });
   };
 
-  // Get status badge
-  const getStatusBadge = (status: string) => {
-    const variants = {
-      pending: {
-        label: "Pending",
-        variant: "secondary" as const,
-        className: "",
-      },
-      processing: {
-        label: "Processing",
-        variant: "default" as const,
-        className: "",
-      },
-      shipped: {
-        label: "Shipped",
-        variant: "outline" as const,
-        className: "bg-blue-50 text-blue-700 border-blue-200",
-      },
-      delivered: {
-        label: "Delivered",
-        variant: "default" as const,
-        className: "bg-green-50 text-green-700 border-green-200",
-      },
-      cancelled: {
-        label: "Cancelled",
-        variant: "destructive" as const,
-        className: "",
-      },
-    };
+  const getStatusBadge = (order: ShippingOrder) => {
+    const status = order.order_status;
+    const hasShipment = !!order.shipment?.external_shipment_id;
+    const hasLabel = !!order.shipment?.label_url;
+    const hasTracking = !!order.shipment?.tracking_number;
 
-    const config =
-      variants[status as keyof typeof variants] || variants.pending;
+    if (status === "delivered") {
+      return (
+        <Badge className="bg-green-50 text-green-700 border-green-200 border">
+          <CheckCircle className="w-3 h-3 mr-1" /> Delivered
+        </Badge>
+      );
+    }
+    if (status === "shipped" || hasTracking) {
+      return (
+        <Badge className="bg-blue-50 text-blue-700 border-blue-200 border">
+          <Truck className="w-3 h-3 mr-1" /> Shipped
+        </Badge>
+      );
+    }
+    if (hasLabel) {
+      return (
+        <Badge className="bg-purple-50 text-purple-700 border-purple-200 border">
+          <Package className="w-3 h-3 mr-1" /> Label Ready
+        </Badge>
+      );
+    }
+    if (hasShipment) {
+      return (
+        <Badge className="bg-yellow-50 text-yellow-700 border-yellow-200 border">
+          <Clock className="w-3 h-3 mr-1" /> Shipment Created
+        </Badge>
+      );
+    }
+    if (order.payment_status === "paid") {
+      return (
+        <Badge className="bg-amber-50 text-amber-700 border-amber-200 border">
+          <Package className="w-3 h-3 mr-1" /> Ready to Ship
+        </Badge>
+      );
+    }
     return (
-      <Badge variant={config.variant} className={config.className}>
-        {config.label}
+      <Badge variant="secondary">
+        <Clock className="w-3 h-3 mr-1" /> Pending
       </Badge>
     );
   };
+
+  const getNextAction = (order: ShippingOrder) => {
+    const hasShipment = !!order.shipment?.external_shipment_id;
+    const hasLabel = !!order.shipment?.label_url;
+
+    if (!hasShipment && order.payment_status === "paid") {
+      return "create";
+    }
+    if (hasShipment && !hasLabel) {
+      return "buy_label";
+    }
+    if (hasLabel) {
+      return "download";
+    }
+    return null;
+  };
+
+  const toggleOrderSelection = (orderId: number) => {
+    setSelectedOrders((prev) =>
+      prev.includes(orderId) ? prev.filter((id) => id !== orderId) : [...prev, orderId],
+    );
+  };
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────
 
   return (
     <div className="min-h-screen bg-background p-6 md:p-8">
@@ -474,135 +367,61 @@ export default function ShipmentManagement() {
               Shipment Management
             </h1>
             <p className="text-muted-foreground">
-              Fulfill orders and manage shipping
+              Fulfill orders via Chit Chats — create shipments, buy labels, track packages
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={fetchOrders} className="gap-2">
-              <RefreshCw className="w-4 h-4" />
-              Refresh
-            </Button>
-            {selectedOrders.length > 0 && (
-              <Button
-                onClick={() => setShowBulkActions(true)}
-                className="gap-2"
-              >
-                <Send className="w-4 h-4" />
-                Bulk Actions ({selectedOrders.length})
-              </Button>
-            )}
-          </div>
+          <Button variant="outline" onClick={fetchOrders} className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </Button>
         </div>
 
-        {/* Fulfillment Stats */}
+        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-foreground">
-                  {fulfillmentStats.totalOrders}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Total to Fulfill
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-amber-600">
-                  {fulfillmentStats.pending}
-                </p>
-                <p className="text-sm text-muted-foreground">Pending</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">
-                  {fulfillmentStats.processing}
-                </p>
-                <p className="text-sm text-muted-foreground">Processing</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">
-                  {fulfillmentStats.readyToShip}
-                </p>
-                <p className="text-sm text-muted-foreground">Ready to Ship</p>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            { label: "Total Unfulfilled", value: stats.total, color: "text-foreground" },
+            { label: "Awaiting Shipment", value: stats.awaitingShipment, color: "text-amber-600" },
+            { label: "Label Created", value: stats.labelCreated, color: "text-purple-600" },
+            { label: "Shipped", value: stats.shipped, color: "text-blue-600" },
+          ].map((stat) => (
+            <Card key={stat.label}>
+              <CardContent className="pt-6">
+                <div className="text-center">
+                  <p className={`text-2xl font-bold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
-        {/* Filters and Bulk Actions */}
+        {/* Filters */}
         <Card className="mb-6">
           <CardContent className="pt-6">
-            <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search orders by name, email, or tracking..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Order Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">All Statuses</SelectItem>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="processing">Processing</SelectItem>
-                      <SelectItem value="shipped">Shipped</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={selectAllOrders}
-                    disabled={filteredOrders.length === 0}
-                  >
-                    Select All
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={clearSelection}
-                    disabled={selectedOrders.length === 0}
-                  >
-                    Clear
-                  </Button>
-                </div>
+            <div className="flex flex-col md:flex-row gap-4 items-start md:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by name, email, order ID, or tracking..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
               </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() =>
-                    printShippingLabels(
-                      selectedOrders.length > 0
-                        ? selectedOrders
-                        : filteredOrders.map((o) => o.id)
-                    )
-                  }
-                  className="gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  Print Labels
-                </Button>
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="processing">Processing (Paid)</SelectItem>
+                    <SelectItem value="label_created">Label Created</SelectItem>
+                    <SelectItem value="shipped">Shipped</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </CardContent>
@@ -611,29 +430,21 @@ export default function ShipmentManagement() {
         {/* Orders Table */}
         <Card>
           <CardHeader>
-            <CardTitle>
-              Orders Ready for Fulfillment ({filteredOrders.length})
-            </CardTitle>
+            <CardTitle>Orders ({filteredOrders.length})</CardTitle>
             <CardDescription>
-              {selectedOrders.length > 0 &&
-                `${selectedOrders.length} orders selected`}
+              Click &quot;Fulfill&quot; to create a Chit Chats shipment or buy a label
             </CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
-              // Skeleton loader
               <div className="space-y-4">
                 {[...Array(5)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="flex items-center space-x-4 animate-pulse"
-                  >
-                    <div className="w-4 h-4 bg-muted rounded"></div>
+                  <div key={i} className="flex items-center space-x-4 animate-pulse">
                     <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-muted rounded w-3/4"></div>
-                      <div className="h-3 bg-muted rounded w-1/2"></div>
+                      <div className="h-4 bg-muted rounded w-3/4" />
+                      <div className="h-3 bg-muted rounded w-1/2" />
                     </div>
-                    <div className="w-20 h-6 bg-muted rounded"></div>
+                    <div className="w-20 h-6 bg-muted rounded" />
                   </div>
                 ))}
               </div>
@@ -642,7 +453,7 @@ export default function ShipmentManagement() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="w-12">
+                      <TableHead>
                         <input
                           type="checkbox"
                           checked={
@@ -651,9 +462,9 @@ export default function ShipmentManagement() {
                           }
                           onChange={(e) => {
                             if (e.target.checked) {
-                              selectAllOrders();
+                              setSelectedOrders(filteredOrders.map((o) => o.id));
                             } else {
-                              clearSelection();
+                              setSelectedOrders([]);
                             }
                           }}
                           className="rounded border-gray-300"
@@ -664,94 +475,168 @@ export default function ShipmentManagement() {
                       <TableHead>Shipping Address</TableHead>
                       <TableHead>Amount</TableHead>
                       <TableHead>Status</TableHead>
-                      <TableHead>Items</TableHead>
+                      <TableHead>Tracking</TableHead>
                       <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <AnimatePresence>
-                      {filteredOrders.map((order, index) => (
-                        <motion.tr
-                          key={order.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -10 }}
-                          transition={{ delay: index * 0.05 }}
-                          className="border-b border-border hover:bg-muted/50 transition-colors"
-                        >
-                          <TableCell>
-                            <input
-                              type="checkbox"
-                              checked={selectedOrders.includes(order.id)}
-                              onChange={() => toggleOrderSelection(order.id)}
-                              className="rounded border-gray-300"
-                            />
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">#{order.id}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {formatDate(order.created_at)}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{order.full_name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {order.email}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {order.phone}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="max-w-[200px]">
-                              <p className="text-sm">{order.address}</p>
-                              <p className="text-sm text-muted-foreground">
-                                {order.city}, {order.state} {order.postal_code}
-                              </p>
-                            </div>
-                          </TableCell>
-                          <TableCell className="font-medium">
-                            {formatCurrency(order.total_amount)}
-                          </TableCell>
-                          <TableCell>
-                            {getStatusBadge(order.order_status)}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center gap-1">
-                              <Package className="w-4 h-4 text-muted-foreground" />
-                              <span>{order.items.length} items</span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                size="sm"
-                                onClick={() => {
-                                  setSelectedOrder(order);
-                                  setShowFulfillment(true);
-                                }}
-                                disabled={order.order_status === "shipped"}
-                              >
-                                <Truck className="w-4 h-4 mr-2" />
-                                {order.order_status === "shipped"
-                                  ? "Shipped"
-                                  : "Fulfill"}
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </motion.tr>
-                      ))}
+                      {filteredOrders.map((order, index) => {
+                        const nextAction = getNextAction(order);
+                        return (
+                          <motion.tr
+                            key={order.id}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ delay: index * 0.04 }}
+                            className="border-b border-border hover:bg-muted/50 transition-colors"
+                          >
+                            <TableCell>
+                              <input
+                                type="checkbox"
+                                checked={selectedOrders.includes(order.id)}
+                                onChange={() => toggleOrderSelection(order.id)}
+                                className="rounded border-gray-300"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">#{order.id}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  {formatDate(order.created_at)}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium flex items-center gap-1">
+                                  <User className="w-3 h-3" />
+                                  {order.full_name}
+                                </p>
+                                <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                  <Mail className="w-3 h-3" />
+                                  {order.email}
+                                </p>
+                                {order.phone && (
+                                  <p className="text-sm text-muted-foreground flex items-center gap-1">
+                                    <Phone className="w-3 h-3" />
+                                    {order.phone}
+                                  </p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="max-w-[180px]">
+                                <p className="text-sm flex items-start gap-1">
+                                  <MapPin className="w-3 h-3 mt-0.5 shrink-0" />
+                                  {order.address}
+                                </p>
+                                <p className="text-sm text-muted-foreground ml-4">
+                                  {order.city}, {order.state} {order.postal_code}
+                                </p>
+                                <p className="text-sm text-muted-foreground ml-4">
+                                  {order.country}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell className="font-medium">
+                              {formatCurrency(order.total_amount)}
+                            </TableCell>
+                            <TableCell>{getStatusBadge(order)}</TableCell>
+                            <TableCell>
+                              {order.shipment?.tracking_number ? (
+                                <div className="flex items-center gap-1">
+                                  <span className="text-sm font-mono">
+                                    {order.shipment.tracking_number}
+                                  </span>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-6 w-6 p-0"
+                                    onClick={() =>
+                                      copyToClipboard(order.shipment!.tracking_number!)
+                                    }
+                                  >
+                                    <Copy className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ) : order.shipment?.external_shipment_id ? (
+                                <span className="text-xs text-muted-foreground">
+                                  Awaiting label
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex justify-end gap-2">
+                                {/* Download label */}
+                                {order.shipment?.label_url && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="gap-1"
+                                    onClick={() =>
+                                      window.open(order.shipment!.label_url!, "_blank")
+                                    }
+                                  >
+                                    <Download className="w-3 h-3" />
+                                    Label
+                                  </Button>
+                                )}
+
+                                {/* Primary action button */}
+                                {nextAction === "create" && (
+                                  <Button
+                                    size="sm"
+                                    onClick={() => {
+                                      setSelectedOrder(order);
+                                      setShowFulfillment(true);
+                                    }}
+                                  >
+                                    <Truck className="w-3 h-3 mr-1" />
+                                    Fulfill
+                                  </Button>
+                                )}
+
+                                {nextAction === "buy_label" && (
+                                  <Button
+                                    size="sm"
+                                    className="bg-purple-600 hover:bg-purple-700"
+                                    disabled={actionLoading === order.id}
+                                    onClick={() => buyLabel(order.id)}
+                                  >
+                                    {actionLoading === order.id ? (
+                                      <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
+                                    ) : (
+                                      <Package className="w-3 h-3 mr-1" />
+                                    )}
+                                    Buy Label
+                                  </Button>
+                                )}
+
+                                {nextAction === "download" && (
+                                  <Button size="sm" variant="outline" className="gap-1">
+                                    <CheckCircle className="w-3 h-3 text-green-600" />
+                                    Done
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </motion.tr>
+                        );
+                      })}
                     </AnimatePresence>
                   </TableBody>
                 </Table>
+
                 {filteredOrders.length === 0 && (
                   <div className="text-center py-12">
                     <Truck className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                    <p className="text-muted-foreground">No orders found</p>
+                    <p className="text-muted-foreground">
+                      {loading ? "Loading orders..." : "No orders found"}
+                    </p>
                   </div>
                 )}
               </div>
@@ -759,209 +644,143 @@ export default function ShipmentManagement() {
           </CardContent>
         </Card>
 
-        {/* Fulfillment Dialog */}
+        {/* ── Fulfill Dialog ─────────────────────────────────────────────── */}
         <Dialog open={showFulfillment} onOpenChange={setShowFulfillment}>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Fulfill Order #{selectedOrder?.id}</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Truck className="w-5 h-5" />
+                Fulfill Order #{selectedOrder?.id}
+              </DialogTitle>
               <DialogDescription>
-                Ship order to {selectedOrder?.full_name}
+                This will create a shipment in Chit Chats and generate a label.
+                The customer will receive a tracking email after you buy the label.
               </DialogDescription>
             </DialogHeader>
 
             {selectedOrder && (
-              <div className="space-y-6">
-                {/* Order Summary */}
+              <div className="space-y-4">
+                {/* Order summary */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle className="text-sm">Order Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3 text-sm">
+                  <CardContent className="pt-4 space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span>Customer:</span>
-                      <span className="font-medium">
-                        {selectedOrder.full_name}
-                      </span>
+                      <span className="text-muted-foreground">Customer</span>
+                      <span className="font-medium">{selectedOrder.full_name}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Email:</span>
+                      <span className="text-muted-foreground">Email</span>
                       <span>{selectedOrder.email}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Shipping Address:</span>
+                      <span className="text-muted-foreground">Ship to</span>
                       <span className="text-right">
                         {selectedOrder.address}
                         <br />
                         {selectedOrder.city}, {selectedOrder.state}{" "}
                         {selectedOrder.postal_code}
+                        <br />
+                        {selectedOrder.country}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Items:</span>
-                      <span>{selectedOrder.items.length} products</span>
+                      <span className="text-muted-foreground">Items</span>
+                      <span>{selectedOrder.items?.length ?? "—"} product(s)</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Amount</span>
+                      <span className="font-medium">
+                        {formatCurrency(selectedOrder.total_amount)}
+                      </span>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Shipping Options */}
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">
-                      Shipping Carrier
-                    </label>
-                    <Select
-                      value={selectedCarrier}
-                      onValueChange={setSelectedCarrier}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select carrier" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {carriers.map((carrier) => (
-                          <SelectItem key={carrier.id} value={carrier.id}>
-                            {carrier.name} {carrier.service} -{" "}
-                            {formatCurrency(carrier.price)}(
-                            {carrier.estimated_days} days)
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                {/* Current shipment state */}
+                {selectedOrder.shipment?.external_shipment_id ? (
+                  <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 text-sm">
+                    <p className="font-medium text-yellow-800 mb-1">
+                      Shipment already created in Chit Chats
+                    </p>
+                    <p className="text-yellow-700">
+                      ID: {selectedOrder.shipment.external_shipment_id}
+                    </p>
+                    {selectedOrder.shipment.tracking_number && (
+                      <p className="text-yellow-700">
+                        Tracking: {selectedOrder.shipment.tracking_number}
+                      </p>
+                    )}
                   </div>
-
-                  <div>
-                    <label className="text-sm font-medium">
-                      Tracking Number
-                    </label>
-                    <div className="flex gap-2">
-                      <Input
-                        value={trackingNumber}
-                        onChange={(e) => setTrackingNumber(e.target.value)}
-                        placeholder="Auto-generate or enter custom"
-                      />
-                      <Button
-                        variant="outline"
-                        onClick={() => {
-                          if (selectedCarrier) {
-                            const carrier = carriers.find(
-                              (c) => c.id === selectedCarrier
-                            );
-                            if (carrier) {
-                              setTrackingNumber(
-                                generateTrackingNumber(
-                                  carrier.name.toLowerCase()
-                                )
-                              );
-                            }
-                          }
-                        }}
-                      >
-                        Generate
-                      </Button>
-                    </div>
+                ) : (
+                  <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 text-sm">
+                    <p className="font-medium text-blue-800 mb-1">
+                      Ready to create shipment
+                    </p>
+                    <p className="text-blue-700">
+                      Chit Chats will assign a postage type based on the destination
+                      ({selectedOrder.country}).
+                    </p>
                   </div>
-                </div>
+                )}
               </div>
             )}
 
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setShowFulfillment(false)}
-              >
+            <DialogFooter className="gap-2 flex-wrap">
+              <Button variant="outline" onClick={() => setShowFulfillment(false)}>
                 Cancel
               </Button>
-              <Button
-                onClick={() => selectedOrder && fulfillOrder(selectedOrder.id)}
-                disabled={
-                  !selectedCarrier || fulfillingOrderId === selectedOrder?.id
-                }
-              >
-                {fulfillingOrderId === selectedOrder?.id ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Processing...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Mark as Shipped
-                  </>
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
 
-        {/* Bulk Actions Dialog */}
-        <Dialog open={showBulkActions} onOpenChange={setShowBulkActions}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Bulk Fulfillment</DialogTitle>
-              <DialogDescription>
-                Ship {selectedOrders.length} orders with same carrier
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium">Shipping Carrier</label>
-                <Select
-                  value={selectedCarrier}
-                  onValueChange={setSelectedCarrier}
+              {/* Step 1: Create shipment */}
+              {selectedOrder && !selectedOrder.shipment?.external_shipment_id && (
+                <Button
+                  onClick={() => selectedOrder && createShipment(selectedOrder.id)}
+                  disabled={actionLoading === selectedOrder?.id}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select carrier for all orders" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {carriers.map((carrier) => (
-                      <SelectItem key={carrier.id} value={carrier.id}>
-                        {carrier.name} {carrier.service}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  {actionLoading === selectedOrder?.id ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                      Creating...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Create Shipment in Chit Chats
+                    </>
+                  )}
+                </Button>
+              )}
 
-              <div className="bg-muted/50 p-3 rounded-lg">
-                <p className="text-sm font-medium mb-2">Selected Orders:</p>
-                <div className="max-h-32 overflow-y-auto space-y-1">
-                  {selectedOrders.map((orderId) => {
-                    const order = orders.find((o) => o.id === orderId);
-                    return order ? (
-                      <div
-                        key={orderId}
-                        className="text-sm flex justify-between"
-                      >
-                        <span>
-                          #{orderId} - {order.full_name}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {order.items.length} items
-                        </span>
-                      </div>
-                    ) : null;
-                  })}
-                </div>
-              </div>
-            </div>
+              {/* Step 2: Buy label */}
+              {selectedOrder?.shipment?.external_shipment_id &&
+                !selectedOrder.shipment?.label_url && (
+                  <Button
+                    className="bg-purple-600 hover:bg-purple-700"
+                    onClick={() => selectedOrder && buyLabel(selectedOrder.id)}
+                    disabled={actionLoading === selectedOrder?.id}
+                  >
+                    {actionLoading === selectedOrder?.id ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        Purchasing...
+                      </>
+                    ) : (
+                      <>
+                        <Package className="w-4 h-4 mr-2" />
+                        Buy Label &amp; Notify Customer
+                      </>
+                    )}
+                  </Button>
+                )}
 
-            <DialogFooter className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => printShippingLabels(selectedOrders)}
-                className="flex-1"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Print Labels Only
-              </Button>
-              <Button
-                onClick={bulkFulfillOrders}
-                disabled={!selectedCarrier}
-                className="flex-1"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Ship All Orders
-              </Button>
+              {/* Step 3: Download label */}
+              {selectedOrder?.shipment?.label_url && (
+                <Button
+                  variant="outline"
+                  onClick={() => window.open(selectedOrder.shipment!.label_url!, "_blank")}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Download Label
+                </Button>
+              )}
             </DialogFooter>
           </DialogContent>
         </Dialog>
