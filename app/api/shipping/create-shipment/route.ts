@@ -30,12 +30,16 @@ export async function POST(req: NextRequest) {
     // ── 1. Fetch the order ───────────────────────────────────────────────
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("*, order_items(*)")
+      .select("*")
       .eq("id", orderId)
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      console.error("❌ Order fetch error in create-shipment:", orderError);
+      return NextResponse.json(
+        { error: orderError?.message || `Order #${orderId} not found` },
+        { status: 404 }
+      );
     }
 
     if (order.payment_status !== "paid") {
@@ -63,14 +67,27 @@ export async function POST(req: NextRequest) {
     }
 
     // ── 3. Calculate total weight ────────────────────────────────────────
-    const items = order.order_items ?? order.items ?? [];
-    const totalWeightGrams = items.reduce((sum: number, item: any) => {
-      const weightKg =
-        typeof item?.weight === "number" && Number.isFinite(item.weight)
-          ? item.weight
-          : 0;
-      return sum + weightKg * 1000 * (item.quantity ?? 1);
-    }, 0);
+    let items = order.items ?? order.order_items ?? [];
+    if (!Array.isArray(items) || items.length === 0) {
+      const { data: dbOrderItems } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", orderId);
+      if (dbOrderItems && dbOrderItems.length > 0) {
+        items = dbOrderItems;
+      }
+    }
+
+    const totalWeightGrams = (Array.isArray(items) ? items : []).reduce(
+      (sum: number, item: any) => {
+        const weightKg =
+          typeof item?.weight === "number" && Number.isFinite(item.weight)
+            ? item.weight
+            : 0;
+        return sum + weightKg * 1000 * (item.quantity ?? 1);
+      },
+      0
+    );
 
     // Fallback: minimum 100g if items have no weight data
     const weightGrams = Math.max(Math.round(totalWeightGrams), 100);

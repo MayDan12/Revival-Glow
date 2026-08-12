@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     if (!labelUrl || !trackingNumber) {
       const buyResult = await buyChitChatsLabel(
         shipment.external_shipment_id,
-        shipment.service_name ?? "chit_chats_canada_tracked",
+        shipment.service_name ?? "chit_chats_select",
       );
       labelUrl = buyResult.labelUrl;
       trackingNumber = buyResult.trackingNumber;

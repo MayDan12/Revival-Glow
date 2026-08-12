@@ -97,12 +97,12 @@ function shipmentsUrl(path = "") {
  * Map zone code to the correct Chit Chats postage_type.
  *
  * Available postage types:
- *   Canada → chit_chats_canada_tracked
+ *   Canada → chit_chats_select (default, ~$5.06) or chit_chats_canada_tracked ($12.36)
  *   US     → chit_chats_us_tracked  (Chit Chats cross-border service)
  *   INTL   → tracked_packet_intl    (tracked international packet)
  */
 export function resolvePostageType(zoneCode: ZoneCode, _weightGrams?: number): string {
-  if (zoneCode === "CA") return "chit_chats_canada_tracked";
+  if (zoneCode === "CA") return "chit_chats_select";
   if (zoneCode === "US") return "chit_chats_us_tracked";
   return "tracked_packet_intl";
 }
