@@ -82,6 +82,9 @@ export async function sendReviewRequest(to: string, props: React.ComponentProps<
   });
 }
 
+import QuoteRequestNotificationEmail from "./templates/quote-request-notification";
+import QuoteInvoiceEmail from "./templates/quote-invoice";
+
 export async function sendAdminCustomEmail(
   to: string, 
   subject: string, 
@@ -93,5 +96,30 @@ export async function sendAdminCustomEmail(
     subject,
     react: React.createElement(AdminCustomEmail, props),
     replyTo,
+  });
+}
+
+export async function sendQuoteRequestNotification(
+  to: string,
+  props: React.ComponentProps<typeof QuoteRequestNotificationEmail>
+) {
+  const subject = props.isAdminNotification
+    ? `[Admin] New Shipping Quote Request ${props.orderNumber}`
+    : `Shipping Quote Request Received - Order ${props.orderNumber}`;
+  return sendEmail({
+    to,
+    subject,
+    react: React.createElement(QuoteRequestNotificationEmail, props),
+  });
+}
+
+export async function sendQuoteInvoice(
+  to: string,
+  props: React.ComponentProps<typeof QuoteInvoiceEmail>
+) {
+  return sendEmail({
+    to,
+    subject: `Shipping Quote Ready & Invoice for Order ${props.orderNumber}`,
+    react: React.createElement(QuoteInvoiceEmail, props),
   });
 }

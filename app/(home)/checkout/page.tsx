@@ -15,6 +15,7 @@ import {
   COUNTRIES_BY_GROUP,
   getZoneCode,
   resolveCountry,
+  isCustomQuoteRequired,
 } from "@/lib/countries";
 
 export default function CheckoutPage() {
@@ -127,41 +128,63 @@ export default function CheckoutPage() {
     };
   }, [formData.country, state.items.length, totalWeightKg]);
 
+  const isQuoteRequired = isCustomQuoteRequired(formData.country);
+
   const subtotal = state.total;
   const tax = subtotal * 0.08;
-  const total = subtotal + tax + shipping;
+  const total = isQuoteRequired ? subtotal + tax : subtotal + tax + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsProcessing(true);
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/checkout/session`,
-        {
+      if (isQuoteRequired) {
+        // Handle Quote Request
+        const res = await fetch("/api/shipping/quote-request", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             items: state.items,
             userData: formData,
-            // Send currency and rate for consistency
-            currencyCode: currentCurrency.code,
-            rate: currentCurrency.rate,
-            totalAmount: total,
           }),
-        },
-      );
+        });
 
-      const data = await res.json();
-
-      if (data.url) {
-        window.location.href = data.url; // Redirect to Stripe Checkout
+        const data = await res.json();
+        if (data.success && data.orderId) {
+          dispatch({ type: "CLEAR_CART" });
+          window.location.href = `/checkout/quote-success?orderId=${data.orderId}`;
+        } else {
+          throw new Error(data.error || "Failed to submit quote request");
+        }
       } else {
-        throw new Error(data.error || "Failed to start checkout");
+        // Handle Standard Stripe Checkout
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BASE_URL}/api/checkout/session`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              items: state.items,
+              userData: formData,
+              currencyCode: currentCurrency.code,
+              rate: currentCurrency.rate,
+              totalAmount: total,
+            }),
+          },
+        );
+
+        const data = await res.json();
+
+        if (data.url) {
+          window.location.href = data.url; // Redirect to Stripe Checkout
+        } else {
+          throw new Error(data.error || "Failed to start checkout");
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Checkout Error:", error);
-      alert("Something went wrong while starting checkout.");
+      alert(error.message || "Something went wrong while processing your request.");
     } finally {
       setIsProcessing(false);
     }
@@ -344,10 +367,32 @@ export default function CheckoutPage() {
                           </option>
                         ))}
                       </optgroup>
+
+                      {/* Custom Quote / Unsupported */}
+                      <optgroup label="Other Destinations">
+                        {COUNTRIES_BY_GROUP.customQuote.map((c) => (
+                          <option key={c.code} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </optgroup>
                     </select>
 
+                    {/* Alert for Custom Quote Destinations */}
+                    {isQuoteRequired && (
+                      <div className="mt-3 flex items-start gap-2 text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 text-sm">
+                        <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5 text-blue-600" />
+                        <div>
+                          <strong>Custom International Shipping Quote</strong>
+                          <p className="mt-1 text-blue-700 text-xs leading-relaxed">
+                            Because your destination is outside our standard automated carrier zones, submit your details below and our team will email you an exact shipping quote & 1-click payment link within 24 hours. No payment is charged now.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Warn for temporarily unavailable countries */}
-                    {selectedCountryInfo?.mayBeUnavailable && (
+                    {!isQuoteRequired && selectedCountryInfo?.mayBeUnavailable && (
                       <div className="mt-2 flex items-start gap-2 text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm">
                         <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                         <span>
@@ -367,6 +412,8 @@ export default function CheckoutPage() {
               >
                 {isProcessing
                   ? "Processing..."
+                  : isQuoteRequired
+                  ? "Submit Shipping Quote Request"
                   : `Complete Purchase - ${formatPrice(total)}`}
               </Button>
             </form>
@@ -409,7 +456,13 @@ export default function CheckoutPage() {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>{formatPrice(shipping)}</span>
+                    <span>
+                      {isQuoteRequired ? (
+                        <span className="text-blue-600 font-medium text-xs">Quote via Email</span>
+                      ) : (
+                        formatPrice(shipping)
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Tax</span>
@@ -418,7 +471,13 @@ export default function CheckoutPage() {
                   <div className="border-t pt-2 flex justify-between">
                     <span className="font-medium">Total</span>
                     <span className="font-medium text-lg">
-                      {formatPrice(total)}
+                      {isQuoteRequired ? (
+                        <span className="text-sm font-normal text-muted-foreground">
+                          {formatPrice(subtotal + tax)} + Shipping Quote
+                        </span>
+                      ) : (
+                        formatPrice(total)
+                      )}
                     </span>
                   </div>
                 </div>
