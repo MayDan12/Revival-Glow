@@ -80,6 +80,8 @@ interface Order {
   payment_status: "pending" | "paid" | "failed" | "refunded";
   order_status:
     | "pending"
+    | "pending_quote"
+    | "quote_sent"
     | "processing"
     | "shipped"
     | "delivered"
@@ -106,6 +108,44 @@ export default function AdminOrdersPage() {
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+  const [customShippingFee, setCustomShippingFee] = useState<string>("");
+  const [sendingInvoice, setSendingInvoice] = useState(false);
+
+  // Send Custom Invoice
+  const handleSendInvoice = async () => {
+    if (!selectedOrder) return;
+    const feeNum = parseFloat(customShippingFee);
+    if (isNaN(feeNum) || feeNum < 0) {
+      toast.error("Please enter a valid shipping fee amount");
+      return;
+    }
+
+    try {
+      setSendingInvoice(true);
+      const res = await fetch("/api/shipping/send-invoice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderId: selectedOrder.id,
+          shippingFee: feeNum,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        toast.success(`Invoice sent to ${selectedOrder.email}!`);
+        setShowOrderDetails(false);
+        fetchOrders();
+      } else {
+        throw new Error(data.error || "Failed to send invoice");
+      }
+    } catch (err: any) {
+      console.error("Error sending invoice:", err);
+      toast.error(err.message || "Failed to send invoice");
+    } finally {
+      setSendingInvoice(false);
+    }
+  };
 
   // Fetch orders
   useEffect(() => {
@@ -308,6 +348,45 @@ export default function AdminOrdersPage() {
               </CardContent>
             </Card>
 
+            {/* Custom Shipping Quote Section */}
+            {(selectedOrder.order_status === "pending_quote" || selectedOrder.order_status === "quote_sent") && (
+              <Card className="md:col-span-2 border-blue-200 bg-blue-50/50">
+                <CardHeader>
+                  <CardTitle className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-blue-600" />
+                    Set Custom Shipping Fee & Send Customer Invoice
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <p className="text-xs text-blue-800 leading-relaxed">
+                    This order was placed from an unsupported country ({selectedOrder.country}). Enter the calculated shipping fee below and click to send an email invoice with a 1-click Stripe checkout payment link.
+                  </p>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <div className="relative flex-1">
+                      <span className="absolute left-3 top-2.5 text-muted-foreground text-sm font-medium">$</span>
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        placeholder="Shipping Fee (e.g. 15.00)"
+                        value={customShippingFee}
+                        onChange={(e) => setCustomShippingFee(e.target.value)}
+                        className="pl-7 bg-background"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSendInvoice}
+                      disabled={sendingInvoice || !customShippingFee}
+                      className="bg-blue-600 hover:bg-blue-700 text-white gap-2 shrink-0"
+                    >
+                      <Mail className="w-4 h-4" />
+                      {sendingInvoice ? "Sending Invoice..." : "Set Fee & Email Invoice"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Order Summary */}
             <Card className="md:col-span-2">
               <CardHeader>
@@ -321,7 +400,13 @@ export default function AdminOrdersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span>Shipping</span>
-                    <span>{formatCurrency(selectedOrder.shipping)}</span>
+                    <span>
+                      {selectedOrder.order_status === "pending_quote" ? (
+                        <span className="text-blue-600 font-medium text-xs">Pending Quote</span>
+                      ) : (
+                        formatCurrency(selectedOrder.shipping)
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Tax</span>
@@ -439,6 +524,8 @@ export default function AdminOrdersPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="pending_quote">Pending Quote</SelectItem>
+                    <SelectItem value="quote_sent">Quote Invoice Sent</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
                     <SelectItem value="processing">Processing</SelectItem>
                     <SelectItem value="shipped">Shipped</SelectItem>

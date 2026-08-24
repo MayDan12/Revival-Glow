@@ -4,6 +4,7 @@ import { CartProvider } from "@/contexts/cart-context";
 import { CurrencyProvider } from "@/contexts/currency-context";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import { MetaPixel } from "@/components/meta-pixel";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -47,7 +48,7 @@ export default function RootLayout({
           <CartProvider>{children}</CartProvider>
         </CurrencyProvider>
         <Toaster />
-        {/* <Analytics /> */}
+        <MetaPixel />
       </body>
     </html>
   );

@@ -131,9 +131,23 @@ export function getZoneCode(countryInput: string): ZoneCode {
   return resolveCountry(countryInput)?.zone ?? "INTL";
 }
 
-/** Is this country supported for shipping via Chit Chats? */
-export function isCountrySupported(countryInput: string): boolean {
-  return resolveCountry(countryInput) !== null;
+/** Special country code for custom shipping quote requests */
+export const CUSTOM_QUOTE_COUNTRY_CODE = "OTHER";
+export const CUSTOM_QUOTE_COUNTRY_NAME = "Other Country (Request Shipping Quote)";
+
+/** Check if custom shipping quote request is required for a given country string or code */
+export function isCustomQuoteRequired(countryInput: string): boolean {
+  if (!countryInput) return false;
+  const trimmed = countryInput.trim();
+  if (
+    trimmed === CUSTOM_QUOTE_COUNTRY_CODE ||
+    trimmed === CUSTOM_QUOTE_COUNTRY_NAME ||
+    trimmed.toLowerCase().includes("request shipping quote") ||
+    trimmed.toLowerCase().includes("other country")
+  ) {
+    return true;
+  }
+  return false;
 }
 
 /** Countries grouped for rendering a select dropdown */
@@ -141,4 +155,5 @@ export const COUNTRIES_BY_GROUP = {
   domestic: SUPPORTED_COUNTRIES.filter((c) => c.zone === "CA"),
   us: SUPPORTED_COUNTRIES.filter((c) => c.zone === "US"),
   international: SUPPORTED_COUNTRIES.filter((c) => c.zone === "INTL"),
+  customQuote: [{ name: CUSTOM_QUOTE_COUNTRY_NAME, code: CUSTOM_QUOTE_COUNTRY_CODE, zone: "INTL" as ZoneCode }],
 } as const;
