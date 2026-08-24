@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useCart } from "@/contexts/cart-context";
 import { useCurrency } from "@/contexts/currency-context";
 import { Heart, ShoppingCart, Minus, Plus, Star } from "lucide-react";
+import { trackViewContent, trackAddToCart } from "@/lib/meta-pixel";
 
 interface Product {
   id: number;
@@ -41,6 +42,19 @@ export function ProductDetails({ product }: ProductDetailsProps) {
   const increaseQuantity = () => setQuantity((prev) => prev + 1);
   const decreaseQuantity = () => setQuantity((prev) => Math.max(1, prev - 1));
 
+  // Track Meta Pixel ViewContent event when product details are viewed
+  useEffect(() => {
+    if (product) {
+      trackViewContent({
+        content_name: product.name,
+        content_category: product.category,
+        content_ids: [String(product.id)],
+        value: product.price,
+        currency: "USD",
+      });
+    }
+  }, [product]);
+
   const addToCart = () => {
     dispatch({
       type: "ADD_ITEM",
@@ -56,6 +70,16 @@ export function ProductDetails({ product }: ProductDetailsProps) {
         quantity: quantity,
       },
     });
+
+    // Track Meta Pixel AddToCart event
+    trackAddToCart({
+      content_name: product.name,
+      content_category: product.category,
+      content_ids: [String(product.id)],
+      value: product.price * quantity,
+      currency: "USD",
+    });
+
     // Reset quantity after adding to cart
     setQuantity(1);
   };
