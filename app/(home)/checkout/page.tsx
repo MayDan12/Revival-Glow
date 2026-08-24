@@ -17,6 +17,7 @@ import {
   resolveCountry,
   isCustomQuoteRequired,
 } from "@/lib/countries";
+import { trackInitiateCheckout } from "@/lib/meta-pixel";
 
 export default function CheckoutPage() {
   const { state, dispatch } = useCart();
@@ -42,6 +43,17 @@ export default function CheckoutPage() {
         setFormData((prev) => ({ ...prev, country: saved }));
       }
     } catch {}
+  }, []);
+
+  useEffect(() => {
+    if (state.items.length > 0) {
+      trackInitiateCheckout({
+        content_ids: state.items.map((i) => String(i.id)),
+        num_items: state.items.reduce((sum, i) => sum + i.quantity, 0),
+        value: state.total,
+        currency: "USD",
+      });
+    }
   }, []);
 
   useEffect(() => {
