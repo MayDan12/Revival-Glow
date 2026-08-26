@@ -48,6 +48,7 @@ import {
   DollarSign,
   Send,
   Tag,
+  Star,
 } from "lucide-react";
 import { supabase } from "@/utils/supabase/client";
 import { toast } from "sonner";
@@ -111,6 +112,25 @@ export default function AdminCustomersPage() {
 
   // Email templates (you can move this to a database later)
   const defaultEmailTemplates: EmailTemplate[] = [
+    {
+      id: "review_request",
+      name: "Review Request (Thank You)",
+      subject: "Thank You for Your Purchase! 💛 Share Your Experience",
+      body: `Thank You for Your Purchase
+
+Thank you so much for your purchase! 💛 We’re excited to have you as part of the Revival Glow Care family.
+
+We hope you love your products as much as we loved preparing them for you. Your experience means a lot to us, and we’d love to hear what you think!
+
+✨ Enjoyed your purchase? Take a moment to share your experience with us:
+
+https://www.revivalglowcare.com/review
+
+Your review helps us grow and helps other customers shop with confidence.
+
+Thank you for choosing Revival Glow Care! 💕`,
+      type: "transactional",
+    },
     {
       id: "welcome",
       name: "Welcome Email",
@@ -549,7 +569,13 @@ export default function AdminCustomersPage() {
               <label className="text-sm font-medium">Email Template</label>
               <Select
                 value={selectedTemplate}
-                onValueChange={setSelectedTemplate}
+                onValueChange={(val) => {
+                  setSelectedTemplate(val);
+                  const selectedTpl = emailTemplates.find((t) => t.id === val);
+                  if (selectedTpl) {
+                    setCustomMessage(selectedTpl.body);
+                  }
+                }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a template" />
@@ -568,14 +594,14 @@ export default function AdminCustomersPage() {
               <>
                 <div>
                   <label className="text-sm font-medium">Subject</label>
-                  <Input value={template.subject} readOnly />
+                  <Input value={template.subject} readOnly className="mt-1 bg-muted/40" />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Message</label>
                   <textarea
-                    value={customMessage || template.body}
+                    value={customMessage !== "" ? customMessage : template.body}
                     onChange={(e) => setCustomMessage(e.target.value)}
-                    className="w-full h-32 p-3 border rounded-md text-sm resize-none"
+                    className="w-full h-56 p-3 mt-1 border rounded-md text-sm leading-relaxed font-sans resize-y bg-background"
                     placeholder="Customize your message..."
                   />
                 </div>
@@ -840,11 +866,23 @@ export default function AdminCustomersPage() {
                                     <DropdownMenuItem
                                       onClick={() => {
                                         setSelectedCustomer(customer);
+                                        setSelectedTemplate("review_request");
+                                        const reviewTpl = emailTemplates.find((t) => t.id === "review_request");
+                                        setCustomMessage(reviewTpl ? reviewTpl.body : "");
+                                        setShowEmailDialog(true);
+                                      }}
+                                    >
+                                      <Star className="w-4 h-4 mr-2 text-amber-500 fill-amber-500" />
+                                      Request Review Email
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() => {
+                                        setSelectedCustomer(customer);
                                         setShowEmailDialog(true);
                                       }}
                                     >
                                       <Send className="w-4 h-4 mr-2" />
-                                      Send Email
+                                      Send Custom Email
                                     </DropdownMenuItem>
                                     <DropdownMenuItem>
                                       <Tag className="w-4 h-4 mr-2" />
