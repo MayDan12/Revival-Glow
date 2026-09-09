@@ -7,7 +7,15 @@ export async function POST(req: NextRequest) {
 
   try {
     const body = await req.json();
-    const { items, userData } = body;
+    const { items, userData, promoCode } = body;
+    const cleanedPromoCode =
+      typeof promoCode === "string" ? promoCode.trim().toUpperCase() : "";
+    const discountRate =
+      cleanedPromoCode === "GLOW100"
+        ? 1.0
+        : cleanedPromoCode === "GLOW20"
+        ? 0.2
+        : 0;
 
     if (!userData?.email || !userData?.address || !userData?.country) {
       return NextResponse.json(
@@ -29,6 +37,8 @@ export async function POST(req: NextRequest) {
     }, 0);
 
     const subtotalInCents = Math.round(baseSubtotal * 100);
+    const discountInCents = Math.round(baseSubtotal * discountRate * 100);
+    const totalAmountInCents = Math.max(0, subtotalInCents - discountInCents);
 
     // Save quote request order to Supabase
     const { data: order, error } = await supabase
@@ -43,8 +53,8 @@ export async function POST(req: NextRequest) {
           state: userData.state || "",
           postal_code: userData.zipCode || "",
           country: userData.country || "Other",
-          total_amount: subtotalInCents, // Total without shipping yet
-          subtotal: subtotalInCents,
+          total_amount: totalAmountInCents, // Total without shipping yet (with promo if applied)
+          subtotal: Math.max(0, subtotalInCents - discountInCents),
           tax: 0,
           shipping: 0,
           currency: "CAD",
@@ -77,9 +87,11 @@ export async function POST(req: NextRequest) {
 
     await supabase.from("order_items").insert(orderItems);
 
-    const itemsSummary = safeItems
-      .map((i: any) => `${i.quantity}x ${i.name}`)
-      .join(", ");
+    const itemsSummary =
+      safeItems.map((i: any) => `${i.quantity}x ${i.name}`).join(", ") +
+      (discountRate > 0
+        ? ` [Promo Code: ${cleanedPromoCode} - ${discountRate * 100}% off products applied]`
+        : "");
     const fullAddress = `${userData.address}, ${userData.city}, ${userData.state} ${userData.zipCode}`;
 
     // 1. Send confirmation email to customer

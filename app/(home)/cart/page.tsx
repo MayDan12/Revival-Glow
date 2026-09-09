@@ -301,7 +301,7 @@ export default function CartPage() {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Tax</span>
                       <span className="font-medium">
-                        {formatPrice(state.total * 0.08)}
+                        {formatPrice(state.total * 0.13)}
                       </span>
                     </div>
 
@@ -310,7 +310,7 @@ export default function CartPage() {
                         <span className="text-lg font-medium">Total</span>
                         <span className="text-lg font-medium">
                           {formatPrice(
-                            state.total + state.total * 0.08 + shipping,
+                            state.total + state.total * 0.13 + shipping,
                           )}
                         </span>
                       </div>

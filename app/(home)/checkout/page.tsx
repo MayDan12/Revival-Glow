@@ -10,7 +10,7 @@ import { useCurrency } from "@/contexts/currency-context";
 import { supabase } from "@/utils/supabase/client";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Tag, X } from "lucide-react";
 import {
   COUNTRIES_BY_GROUP,
   getZoneCode,
@@ -24,6 +24,13 @@ export default function CheckoutPage() {
   const { currentCurrency, formatPrice } = useCurrency();
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
+  const [promoInput, setPromoInput] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    discountRate: number;
+  } | null>(null);
+  const [promoError, setPromoError] = useState("");
+  const [promoSuccess, setPromoSuccess] = useState("");
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -140,11 +147,55 @@ export default function CheckoutPage() {
     };
   }, [formData.country, state.items.length, totalWeightKg]);
 
+  const handleApplyPromo = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setPromoError("");
+    setPromoSuccess("");
+
+    const cleaned = promoInput.trim().toUpperCase();
+    if (!cleaned) return;
+
+    if (cleaned === "GLOW20") {
+      setAppliedPromo({
+        code: "GLOW20",
+        discountRate: 0.2,
+      });
+      setPromoSuccess("Promo code GLOW20 applied! 20% off products.");
+      setPromoInput("");
+    } else if (cleaned === "GLOW100") {
+      setAppliedPromo({
+        code: "GLOW100",
+        discountRate: 1.0,
+      });
+      setPromoSuccess(
+        "Promo code GLOW100 applied! 100% off products (only pay shipping).",
+      );
+      setPromoInput("");
+    } else {
+      setPromoError("Invalid promo code. Please try again.");
+    }
+  };
+
+  const handleRemovePromo = () => {
+    setAppliedPromo(null);
+    setPromoError("");
+    setPromoSuccess("");
+  };
+
   const isQuoteRequired = isCustomQuoteRequired(formData.country);
 
   const subtotal = state.total;
-  const tax = subtotal * 0.08;
-  const total = isQuoteRequired ? subtotal + tax : subtotal + tax + shipping;
+  const discountAmount = appliedPromo
+    ? Math.min(subtotal, subtotal * appliedPromo.discountRate)
+    : 0;
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  const tax = discountedSubtotal * 0.13;
+  const originalTotal = isQuoteRequired
+    ? subtotal + subtotal * 0.13
+    : subtotal + subtotal * 0.13 + shipping;
+  const total = isQuoteRequired
+    ? discountedSubtotal + tax
+    : discountedSubtotal + tax + shipping;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,6 +210,7 @@ export default function CheckoutPage() {
           body: JSON.stringify({
             items: state.items,
             userData: formData,
+            promoCode: appliedPromo?.code,
           }),
         });
 
@@ -182,6 +234,7 @@ export default function CheckoutPage() {
               currencyCode: currentCurrency.code,
               rate: currentCurrency.rate,
               totalAmount: total,
+              promoCode: appliedPromo?.code,
             }),
           },
         );
@@ -461,11 +514,85 @@ export default function CheckoutPage() {
                   ))}
                 </div>
 
+                {/* Promo Code Section */}
+                <div className="border-t pt-4">
+                  {appliedPromo ? (
+                    <div className="flex items-center justify-between p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-sm">
+                      <div className="flex items-center gap-2">
+                        <Tag className="w-4 h-4 text-emerald-600" />
+                        <div>
+                          <span className="font-semibold text-emerald-900">
+                            {appliedPromo.code}
+                          </span>
+                          <span className="text-emerald-700 ml-1.5 text-xs font-medium bg-emerald-100 px-1.5 py-0.5 rounded">
+                            {appliedPromo.discountRate * 100}% OFF
+                          </span>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemovePromo}
+                        className="text-muted-foreground hover:text-destructive p-1 transition-colors"
+                        title="Remove promo code"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={promoInput}
+                          onChange={(e) => {
+                            setPromoInput(e.target.value);
+                            if (promoError) setPromoError("");
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              handleApplyPromo();
+                            }
+                          }}
+                          placeholder="Promo code"
+                          className="flex-1 px-3 py-1.5 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary uppercase placeholder:normal-case"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handleApplyPromo}
+                          disabled={!promoInput.trim()}
+                        >
+                          Apply
+                        </Button>
+                      </div>
+                      {promoError && (
+                        <p className="text-xs text-destructive">{promoError}</p>
+                      )}
+                    </div>
+                  )}
+                  {promoSuccess && (
+                    <p className="text-xs text-emerald-600 mt-1.5 font-medium">
+                      {promoSuccess}
+                    </p>
+                  )}
+                </div>
+
                 <div className="border-t pt-4 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
                     <span>{formatPrice(subtotal)}</span>
                   </div>
+                  {appliedPromo && discountAmount > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-600 font-medium">
+                      <span className="flex items-center gap-1">
+                        <Tag className="w-3.5 h-3.5" />
+                        Discount ({appliedPromo.code} - {appliedPromo.discountRate * 100}%)
+                      </span>
+                      <span>-{formatPrice(discountAmount)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Shipping</span>
                     <span>
@@ -480,15 +607,22 @@ export default function CheckoutPage() {
                     <span className="text-muted-foreground">Tax</span>
                     <span>{formatPrice(tax)}</span>
                   </div>
-                  <div className="border-t pt-2 flex justify-between">
+                  <div className="border-t pt-2 flex justify-between items-baseline">
                     <span className="font-medium">Total</span>
                     <span className="font-medium text-lg">
                       {isQuoteRequired ? (
                         <span className="text-sm font-normal text-muted-foreground">
-                          {formatPrice(subtotal + tax)} + Shipping Quote
+                          {formatPrice(total)} + Shipping Quote
                         </span>
                       ) : (
-                        formatPrice(total)
+                        <span className="flex items-baseline gap-2">
+                          {discountAmount > 0 && (
+                            <span className="text-xs text-muted-foreground line-through font-normal">
+                              {formatPrice(originalTotal)}
+                            </span>
+                          )}
+                          <span>{formatPrice(total)}</span>
+                        </span>
                       )}
                     </span>
                   </div>
