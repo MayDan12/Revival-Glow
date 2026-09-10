@@ -17,7 +17,17 @@ export async function POST(req: NextRequest) {
       rate,
       totalAmount,
       total: legacyTotal,
+      promoCode,
     } = body;
+
+    const cleanedPromoCode =
+      typeof promoCode === "string" ? promoCode.trim().toUpperCase() : "";
+    const discountRate =
+      cleanedPromoCode === "GLOW100"
+        ? 1.0
+        : cleanedPromoCode === "GLOW20"
+        ? 0.2
+        : 0;
 
     const requestedCurrency =
       typeof currencyCode === "string" ? currencyCode.toLowerCase() : "cad";
@@ -118,11 +128,15 @@ export async function POST(req: NextRequest) {
       return sum + item.price * item.quantity;
     }, 0);
 
-    const baseTax = baseSubtotal * 0.08;
-    const baseTotal = baseSubtotal + baseTax + baseShipping;
+    const baseDiscount = Math.min(baseSubtotal, baseSubtotal * discountRate);
+    const baseDiscountedSubtotal = Math.max(0, baseSubtotal - baseDiscount);
+    const baseTax = baseDiscountedSubtotal * 0.13;
+    const baseTotal = baseDiscountedSubtotal + baseTax + baseShipping;
 
     // Converted amounts for Stripe
     const convertedSubtotal = baseSubtotal * paymentRate;
+    const convertedDiscount = baseDiscount * paymentRate;
+    const convertedDiscountedSubtotal = baseDiscountedSubtotal * paymentRate;
     const convertedTax = baseTax * paymentRate;
     const convertedShipping = baseShipping * paymentRate;
     const expectedTotal = baseTotal * paymentRate;
@@ -136,43 +150,65 @@ export async function POST(req: NextRequest) {
       paymentRate,
       zoneCode,
       totalWeightKg,
+      cleanedPromoCode,
+      discountRate,
       baseTotal,
       expectedTotal,
     });
 
-    // Prepare line items for Stripe
-    const line_items = [
-      {
+    // Prepare line items for Stripe (discount applied directly to product subtotal so shipping is never discounted)
+    const line_items: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+
+    const subtotalCents = Math.round(convertedDiscountedSubtotal * 100);
+    if (subtotalCents > 0) {
+      line_items.push({
         price_data: {
           currency: paymentCurrency,
           product_data: {
-            name: "Order Subtotal",
+            name:
+              discountRate > 0
+                ? `Order Subtotal (${cleanedPromoCode} - ${discountRate * 100}% off products)`
+                : "Order Subtotal",
           },
-          unit_amount: Math.round(convertedSubtotal * 100), // Convert to cents
+          unit_amount: subtotalCents,
         },
         quantity: 1,
-      },
-      {
+      });
+    }
+
+    const taxCents = Math.round(convertedTax * 100);
+    if (taxCents > 0) {
+      line_items.push({
         price_data: {
           currency: paymentCurrency,
           product_data: {
-            name: "Tax",
+            name: "Tax (13%)",
           },
-          unit_amount: Math.round(convertedTax * 100), // Convert to cents
+          unit_amount: taxCents,
         },
         quantity: 1,
-      },
-      {
+      });
+    }
+
+    const shippingCents = Math.round(convertedShipping * 100);
+    if (shippingCents > 0) {
+      line_items.push({
         price_data: {
           currency: paymentCurrency,
           product_data: {
             name: "Shipping",
           },
-          unit_amount: Math.round(convertedShipping * 100), // Convert to cents
+          unit_amount: shippingCents,
         },
         quantity: 1,
-      },
-    ];
+      });
+    }
+
+    if (line_items.length === 0) {
+      throw new Error(
+        "Order amount must be greater than zero to proceed with Stripe checkout.",
+      );
+    }
 
     // Create a Stripe Checkout Session
     const session = await stripe.checkout.sessions.create({
@@ -186,6 +222,8 @@ export async function POST(req: NextRequest) {
         customer_name: `${userData.firstName} ${userData.lastName}`,
         customer_phone: userData.phone,
         shipping_address: `${userData.address}, ${userData.city}, ${userData.state} ${userData.zipCode}`,
+        promo_code: cleanedPromoCode || "",
+        discount_amount: String(Math.round(convertedDiscount * 100)),
       },
     });
 
@@ -210,7 +248,7 @@ export async function POST(req: NextRequest) {
           postal_code: userData.zipCode,
           country: userData.country,
           total_amount: totalAmountInCents, // ✅ Now storing in cents
-          subtotal: Math.round(convertedSubtotal * 100), // ✅ Store in cents
+          subtotal: Math.round(convertedDiscountedSubtotal * 100), // ✅ Store discounted subtotal in cents
           tax: Math.round(convertedTax * 100), // ✅ Store in cents
           shipping: Math.round(convertedShipping * 100), // ✅ Store in cents
           currency: paymentCurrency.toUpperCase(), // Store the currency code
