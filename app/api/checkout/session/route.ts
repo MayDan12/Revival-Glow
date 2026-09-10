@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
         price_data: {
           currency: paymentCurrency,
           product_data: {
-            name: "Tax (8%)",
+            name: "Tax (13%)",
           },
           unit_amount: taxCents,
         },
