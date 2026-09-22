@@ -101,14 +101,23 @@ export default function AdminCustomersPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<string>("last_order");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
-    null
+    null,
   );
   const [customerOrders, setCustomerOrders] = useState<CustomerOrder[]>([]);
   const [showCustomerDetails, setShowCustomerDetails] = useState(false);
   const [showEmailDialog, setShowEmailDialog] = useState(false);
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const [customSubject, setCustomSubject] = useState("");
   const [customMessage, setCustomMessage] = useState("");
+
+  const openCustomEmailDialog = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setSelectedTemplate("custom");
+    setCustomSubject("");
+    setCustomMessage("");
+    setShowEmailDialog(true);
+  };
 
   // Email templates (you can move this to a database later)
   const defaultEmailTemplates: EmailTemplate[] = [
@@ -258,7 +267,7 @@ Thank you for choosing Revival Glow Care! 💕`,
         customer.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         customer.phone.includes(searchTerm) ||
-        customer.city.toLowerCase().includes(searchTerm.toLowerCase())
+        customer.city.toLowerCase().includes(searchTerm.toLowerCase()),
     );
 
     // Sort customers
@@ -287,7 +296,7 @@ Thank you for choosing Revival Glow Care! 💕`,
     const segments = {
       new: customers.filter((c) => c.total_orders === 1),
       regular: customers.filter(
-        (c) => c.total_orders >= 2 && c.total_orders <= 5
+        (c) => c.total_orders >= 2 && c.total_orders <= 5,
       ),
       vip: customers.filter((c) => c.total_orders > 5),
       highValue: customers.filter((c) => c.total_spent > 50000), // $500+ in cents
@@ -344,35 +353,37 @@ Thank you for choosing Revival Glow Care! 💕`,
 
     try {
       const template = emailTemplates.find((t) => t.id === selectedTemplate);
-      if (!template) return;
+      const subject = template?.subject ?? customSubject;
+      if (!subject || !customMessage) return;
 
       // In a real implementation, you would integrate with your email service
       // For now, we'll simulate the email sending
 
       const emailData = {
         to: selectedCustomer.email,
-        subject: template.subject,
-        body: customMessage || template.body,
+        subject,
+        body: customMessage,
         customerName: selectedCustomer.full_name,
       };
 
       console.log("Sending email:", emailData);
 
-      const response = await fetch('/api/send-email', {
-        method: 'POST',
+      const response = await fetch("/api/send-email", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(emailData)
+        body: JSON.stringify(emailData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to send email');
+        throw new Error("Failed to send email");
       }
 
       toast.success(`Email sent to ${selectedCustomer.email}`);
       setShowEmailDialog(false);
       setSelectedTemplate("");
+      setCustomSubject("");
       setCustomMessage("");
     } catch (error) {
       console.error("Error sending email:", error);
@@ -482,7 +493,7 @@ Thank you for choosing Revival Glow Care! 💕`,
                           <span className="capitalize">{status}</span>
                           <span className="font-medium">{count}</span>
                         </div>
-                      )
+                      ),
                   )}
                 </div>
               </CardContent>
@@ -551,6 +562,7 @@ Thank you for choosing Revival Glow Care! 💕`,
     if (!selectedCustomer) return null;
 
     const template = emailTemplates.find((t) => t.id === selectedTemplate);
+    const isCustomEmail = selectedTemplate === "custom";
 
     return (
       <Dialog open={showEmailDialog} onOpenChange={setShowEmailDialog}>
@@ -572,15 +584,14 @@ Thank you for choosing Revival Glow Care! 💕`,
                 onValueChange={(val) => {
                   setSelectedTemplate(val);
                   const selectedTpl = emailTemplates.find((t) => t.id === val);
-                  if (selectedTpl) {
-                    setCustomMessage(selectedTpl.body);
-                  }
+                  setCustomMessage(selectedTpl?.body ?? "");
                 }}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select a template" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="custom">Custom Email</SelectItem>
                   {emailTemplates.map((template) => (
                     <SelectItem key={template.id} value={template.id}>
                       {template.name}
@@ -590,16 +601,22 @@ Thank you for choosing Revival Glow Care! 💕`,
               </Select>
             </div>
 
-            {template && (
+            {(template || isCustomEmail) && (
               <>
                 <div>
                   <label className="text-sm font-medium">Subject</label>
-                  <Input value={template.subject} readOnly className="mt-1 bg-muted/40" />
+                  <Input
+                    value={template?.subject ?? customSubject}
+                    onChange={(e) => setCustomSubject(e.target.value)}
+                    readOnly={Boolean(template)}
+                    className={`mt-1 ${template ? "bg-muted/40" : ""}`}
+                    placeholder="Enter an email subject"
+                  />
                 </div>
                 <div>
                   <label className="text-sm font-medium">Message</label>
                   <textarea
-                    value={customMessage !== "" ? customMessage : template.body}
+                    value={customMessage}
                     onChange={(e) => setCustomMessage(e.target.value)}
                     className="w-full h-56 p-3 mt-1 border rounded-md text-sm leading-relaxed font-sans resize-y bg-background"
                     placeholder="Customize your message..."
@@ -613,7 +630,14 @@ Thank you for choosing Revival Glow Care! 💕`,
             <Button variant="outline" onClick={() => setShowEmailDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={sendCustomerEmail} disabled={!selectedTemplate}>
+            <Button
+              onClick={sendCustomerEmail}
+              disabled={
+                !selectedTemplate ||
+                !customMessage ||
+                (isCustomEmail && !customSubject)
+              }
+            >
               <Send className="w-4 h-4 mr-2" />
               Send Email
             </Button>
@@ -867,8 +891,12 @@ Thank you for choosing Revival Glow Care! 💕`,
                                       onClick={() => {
                                         setSelectedCustomer(customer);
                                         setSelectedTemplate("review_request");
-                                        const reviewTpl = emailTemplates.find((t) => t.id === "review_request");
-                                        setCustomMessage(reviewTpl ? reviewTpl.body : "");
+                                        const reviewTpl = emailTemplates.find(
+                                          (t) => t.id === "review_request",
+                                        );
+                                        setCustomMessage(
+                                          reviewTpl ? reviewTpl.body : "",
+                                        );
                                         setShowEmailDialog(true);
                                       }}
                                     >
@@ -876,10 +904,9 @@ Thank you for choosing Revival Glow Care! 💕`,
                                       Request Review Email
                                     </DropdownMenuItem>
                                     <DropdownMenuItem
-                                      onClick={() => {
-                                        setSelectedCustomer(customer);
-                                        setShowEmailDialog(true);
-                                      }}
+                                      onClick={() =>
+                                        openCustomEmailDialog(customer)
+                                      }
                                     >
                                       <Send className="w-4 h-4 mr-2" />
                                       Send Custom Email
