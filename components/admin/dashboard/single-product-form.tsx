@@ -21,6 +21,7 @@ import {
 import { useSession } from "next-auth/react";
 import { supabase } from "@/utils/supabase/client";
 import { Product } from "@/types/product";
+import { optimizeImage } from "@/utils/optimize-image";
 
 const CATEGORIES = [
   "Cleansers",
@@ -152,7 +153,7 @@ export function SingleProductForm() {
 
     try {
       for (const imageFile of imageFiles) {
-        const file = imageFile.file;
+        const file = await optimizeImage(imageFile.file);
         const fileExt = file.name.split(".").pop();
         const fileName = `${Math.random()
           .toString(36)
@@ -183,7 +184,7 @@ export function SingleProductForm() {
         // Upload file to Supabase
         const { error: uploadError } = await supabase.storage
           .from("products")
-          .upload(filePath, file);
+          .upload(filePath, file, { contentType: file.type });
 
         // Clear the progress simulation
         clearInterval(progressInterval);

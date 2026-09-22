@@ -371,6 +371,7 @@ import {
 import JSZip from "jszip";
 import Papa from "papaparse";
 import { supabase } from "@/utils/supabase/client";
+import { optimizeImage } from "@/utils/optimize-image";
 
 interface CSVProduct {
   name: string;
@@ -466,7 +467,8 @@ export function BulkProductUpload() {
 
   // Upload single image to Supabase
   const uploadImageToSupabase = async (file: File): Promise<string> => {
-    const fileExt = file.name.split(".").pop();
+    const optimizedFile = await optimizeImage(file);
+    const fileExt = optimizedFile.name.split(".").pop();
     const fileName = `${Math.random()
       .toString(36)
       .substring(2)}-${Date.now()}.${fileExt}`;
@@ -474,7 +476,7 @@ export function BulkProductUpload() {
 
     const { error: uploadError } = await supabase.storage
       .from("products")
-      .upload(filePath, file);
+      .upload(filePath, optimizedFile, { contentType: optimizedFile.type });
 
     if (uploadError) throw uploadError;
 
@@ -492,7 +494,7 @@ export function BulkProductUpload() {
 
     // Find CSV file
     const csvFile = Object.keys(zipContents.files).find(
-      (name) => name.endsWith(".csv") || name.endsWith(".CSV")
+      (name) => name.endsWith(".csv") || name.endsWith(".CSV"),
     );
 
     if (!csvFile) {
@@ -602,7 +604,7 @@ export function BulkProductUpload() {
   };
 
   const validateProducts = (
-    products: ProcessedProduct[]
+    products: ProcessedProduct[],
   ): { valid: boolean; errors: string[] } => {
     const errors: string[] = [];
 
@@ -645,7 +647,7 @@ export function BulkProductUpload() {
         processedProducts = await processCSVFile(file);
       } else {
         throw new Error(
-          "Unsupported file format. Please upload a ZIP or CSV file."
+          "Unsupported file format. Please upload a ZIP or CSV file.",
         );
       }
 

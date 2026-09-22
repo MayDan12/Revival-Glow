@@ -88,6 +88,8 @@ export function RelatedProducts({ products }: RelatedProductsProps) {
                     <motion.img
                       src={product.images[0]}
                       alt={product.name}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       initial={{ scale: 1 }}
                       whileHover={{ scale: 1.05 }}

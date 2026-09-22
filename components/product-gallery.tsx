@@ -27,6 +27,7 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
         <img
           src={images[currentImage] || "/placeholder.svg"}
           alt={`${productName} - Image ${currentImage + 1}`}
+          decoding="async"
           className="w-full h-full object-cover"
         />
 
@@ -66,6 +67,8 @@ export function ProductGallery({ images, productName }: ProductGalleryProps) {
               <img
                 src={image || "/placeholder.svg"}
                 alt={`${productName} thumbnail ${index + 1}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover"
               />
             </button>
