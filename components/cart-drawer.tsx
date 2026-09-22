@@ -91,6 +91,8 @@ export function CartDrawer() {
                       <img
                         src={item.image || "/placeholder.svg"}
                         alt={item.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-16 h-16 object-cover rounded-md"
                       />
 

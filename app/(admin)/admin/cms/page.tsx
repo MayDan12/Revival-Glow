@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/utils/supabase/client";
+import { optimizeImage } from "@/utils/optimize-image";
 import { ImageIcon, Upload, X } from "lucide-react";
 import React, { useRef, useState } from "react";
 
@@ -40,7 +41,7 @@ export default function AddingImagesToUse() {
 
     try {
       for (const imageFile of imageFiles) {
-        const file = imageFile.file;
+        const file = await optimizeImage(imageFile.file);
         const fileExt = file.name.split(".").pop();
         const fileName = `${Math.random()
           .toString(36)
@@ -71,7 +72,7 @@ export default function AddingImagesToUse() {
         // Upload file to Supabase
         const { error: uploadError } = await supabase.storage
           .from("contents")
-          .upload(fileName, file);
+          .upload(fileName, file, { contentType: file.type });
 
         // Clear the progress simulation
         clearInterval(progressInterval);
@@ -79,7 +80,7 @@ export default function AddingImagesToUse() {
         if (uploadError) {
           console.error("Upload error:", uploadError);
           throw new Error(
-            `Failed to upload ${file.name}: ${uploadError.message}`
+            `Failed to upload ${file.name}: ${uploadError.message}`,
           );
         }
 
