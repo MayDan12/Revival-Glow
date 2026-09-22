@@ -124,6 +124,8 @@ export function ProductCarousel() {
                       <motion.img
                         src={getImageUrl(product.value) || "/placeholder.svg"}
                         alt={product.name}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover"
                         whileHover={{ scale: 1.1 }}
                         transition={{ duration: 0.4 }}
