@@ -100,7 +100,8 @@ export default function CartPage() {
       const matched =
         rates.find((r) => totalWeightKg <= r.maxWeight) ||
         rates[rates.length - 1];
-      setShipping(matched?.price ?? 0);
+      const matchedPrice = matched?.price ?? 0;
+      setShipping(matched ? matchedPrice + 2 : 0);
     }
 
     fetchShipping();
