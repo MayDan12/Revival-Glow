@@ -116,7 +116,8 @@ export async function POST(req: NextRequest) {
       const matched =
         parsedRates.find((r) => totalWeightKg <= r.maxWeight) ||
         parsedRates[parsedRates.length - 1];
-      baseShipping = matched?.price ?? 0;
+      const matchedPrice = matched?.price ?? 0;
+      baseShipping = matched ? matchedPrice + 2 : 0;
     }
 
     const baseUrl =
